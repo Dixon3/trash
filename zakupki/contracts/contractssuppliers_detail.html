@@ -1,0 +1,27 @@
+{% block contents %}
+  {% if object %}
+   
+    <h1>Contracts details</h1>
+    <ul>
+    <li> UID:{{object.order_uid}} </li>
+   
+    {{object.participanttype}}
+    {{object.inn}} 
+    {{object.kpp}}
+    {{object.organizationform}}
+    {{object.organizationname}}
+    {{object.countrycode}}
+    {{object.countryfullname}}
+    {{object.factualaddress}}
+    {{object.postaddress}} = models.TextField()
+    {{object.lastname}} = models.TextField()
+    {{object.firstname}} = models.TextField()
+    {{object.middlename}} = models.TextField()
+    {{object.contactemail}} = models.TextField()
+
+    {{object.contactphone}} = models.TextField()
+    {{object.contactfax}} = models.TextField()
+
+    </ul>
+{% endif %}
+{% endblock %}

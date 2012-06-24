@@ -1,0 +1,9 @@
+{% block content %}
+    <h2>Contracts</h2>
+    <ul>
+        {% for contracts in object_list %}
+            <li><a href={{contracts.order_uid}}>{{ contracts.notificationnumber }}</a>
+		{{contracts.protocoldate}} {{contracts.publishdate}} </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
