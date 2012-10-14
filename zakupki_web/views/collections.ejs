@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+<ul>
+<% for(var i=0; i<names.length; i++) {%>
+	<li>   <a href="<%= '/'+db+'/'+coll+'/'+names[i]._id+'/' %>"> <%= names[i]._id %> </a> </li>  
+<% } %>
+</ul>
+
+  </body>
+</html>

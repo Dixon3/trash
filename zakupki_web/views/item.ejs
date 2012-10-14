@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript">
+    $(function(){
+    $(document).ready(function()
+    	$.getJSON("")
+    	)
+	}
+    </script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+<% print_obj = function(item,key,path){
+
+	var html = "";
+	
+
+	console.log(Object.prototype.toString.call( item ));
+	if( Object.prototype.toString.call( item ) === '[object Array]' ) {
+    html += "<ul>"
+    for (var i=0; i<item.length;i++){
+    	console.log(item)
+    	html += print_obj(item[i])
+		}
+    html += "</ul>" 
+	} else if (Object.prototype.toString.call(item) == '[object Object]'){
+
+		Object.keys(item).forEach(function(key){
+			if(key!='_id'){
+		html+="<ul><li>"+key+':'+print_obj(item[key],key)+"</li></ul>"
+		}
+		});
+
+	} else {
+		
+		if (key == 'oos:url' || key == 'oos:href')
+			{
+				html+="<a href=\""+item+"\">"+item+"</a>"
+
+			}else if (key=='oos:regNum'|| key =='oos:notificationNumber'){
+
+				html += '<a href="/'+db+'/'+coll+'/'+key+'/'+item+'">'+item+'</a>' 
+
+				}else{
+				html+=item
+			}
+		
+	}
+	
+	return html;
+}
+%>
+
+ <%- print_obj(items) %>
+
+  </body>
+</html>
