@@ -7,7 +7,7 @@ var fs = require('fs'),
 
 
 var workers=0;
-var max_workers=3;
+var max_workers=1;
 
 var parser = new xml2js.Parser({explicitRoot:true,trim:true,explicitArray:false});
 var spider = new events.EventEmitter();
@@ -21,17 +21,21 @@ var parsed_items=0;
 
 var server = new Mongolian("localhost:27017");
 var db = server.db("zakupki");
-//var contracts = db.collection("contracts");
+
 var contracts = db.collection('contracts');
-contracts.ensureIndex({"oos:regNum":1});
+contracts.ensureIndex({"oos:regNum":1,"oos:versionNumber":1},{unique:1});
+
 var contractsprocedures = db.collection('contractsprocedures');
+contractsprocedures.ensureIndex({"oos:regNum":1,"oos:id":1},{unique:1});
 
 var notifications = db.collection('notifications');
-contractsprocedures.ensureIndex({"oos:regNum":1});
+notifications.ensureIndex({"oos:notificationNumber":1,"oos:versionNumber":1},{unique:true});
 
 var protocols = db.collection('protocols');
+protocols.ensureIndex({"oos:notificationNumber":1,"oos:versionNumber":1},{unique:true});
 
-on_end = function()
+
+on_end = function(a,b)
 {
 //workers--;
 stored_items++;
@@ -94,9 +98,8 @@ spider.on('storeData',function(data){
 
 Object.keys(data).forEach(function(key){
 
-    if (key.match(/^protocol/))
+    if (key.match(/^protocol/)){
     console.log(key)
-
                 var arr=data[key];
                 for (var i = 0; i < arr.length; i++) {
                 e = arr[i];
@@ -105,6 +108,7 @@ Object.keys(data).forEach(function(key){
 
 
 }}
+}
 );
 
 number_files--;
@@ -144,12 +148,18 @@ spider.on('walk',function(){
 	if (xml_list.length>0){
         if ((workers<max_workers)&(parsed_items-stored_items)<100){
 		        var file=xml_list.pop()
-		        if(file.match(/\xml$/g)){
-		        //console.log(file);
+		        if(file.match(/\.xml$/g)){
+		        console.log(file);
                 workers++;
                 setTimeout(function(){spider.emit('loadFile',file)},1000);
-		        }
+		        } else {
+                console.log("Not xml file:"+file)
+                setTimeout(function(){spider.emit('walk')},1000);
+                }
+
+
                 }else{
+                
 	            setTimeout(function(){spider.emit('walk')},1000);
                 }
 	}

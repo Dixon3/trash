@@ -17,13 +17,12 @@
 <% print_obj = function(item,key,path){
 
 	var html = "";
-	
 
-	console.log(Object.prototype.toString.call( item ));
+	path+=key
+
 	if( Object.prototype.toString.call( item ) === '[object Array]' ) {
     html += "<ul>"
     for (var i=0; i<item.length;i++){
-    	console.log(item)
     	html += print_obj(item[i])
 		}
     html += "</ul>" 
@@ -31,7 +30,7 @@
 
 		Object.keys(item).forEach(function(key){
 			if(key!='_id'){
-		html+="<ul><li>"+key+':'+print_obj(item[key],key)+"</li></ul>"
+		html+="<ul><li>"+key+':'+print_obj(item[key],key,path+".")+"</li></ul>"
 		}
 		});
 
@@ -41,9 +40,13 @@
 			{
 				html+="<a href=\""+item+"\">"+item+"</a>"
 
-			}else if (key=='oos:regNum'|| key =='oos:notificationNumber'){
 
-				html += '<a href="/'+db+'/'+coll+'/'+key+'/'+item+'">'+item+'</a>' 
+			}
+			else if (key=='oos:regNum'|| key =='oos:notificationNumber'||key=='oos:kpp'||key=='oos:code'||key=='oos:inn'||key=='oos:fullName'){
+
+				bb=path.replace("NaN\.","");
+
+				html += '<a href="/'+db+'/'+coll+'/'+bb+'/'+item+'">'+item+'</a>' 
 
 				}else{
 				html+=item
