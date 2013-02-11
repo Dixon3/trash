@@ -140,35 +140,31 @@ function end_items()
 }
 
 
-spider.on('loadFile',function(filename){
+spider.on('loadFile',function(file){
 
-	ftp.get(filename, function(err, data) {
+	ftp.get(file.url, function(err, data) {
     if (err)
         return console.error(err);
 
 
     var zip = new AdmZip(data);
     var zipEntries = zip.getEntries();
-//    console.log(zipEntries.length);
 
     for (var i = 0; i < zipEntries.length; i++){
         var unziped_data= zip.readAsText(zipEntries[i])   
         //console.log(unziped_data)
         parser.parseString(unziped_data, function (err, result) {
-			console.dir(result);
+			//console.dir(result);
 			spider.emit('storeData',result['export']);
-        //	console.log('Done, still in pool:'+number_files);
+			//var file={};
+			
+			file["parsed"]=true
+			console.log(file)
+			zip_files.save(file,function(){spider.emit('walk')});
     	})
 	}
 	});
 
-	//fs.readFile(path+'/'+filename, function(err, data) {
-    //		parser.parseString(data, function (err, result) {
-		//console.dir(result);
-	//	spider.emit('storeData',result['export']);
-        	//console.log('Done, still in pool:'+number_files);
-	//    });
-	//});
 });
 
 
@@ -176,13 +172,10 @@ spider.on('walk',function(){
 
 
 	 zip_files.findOne( { "url":new RegExp(zip_regex),"parsed":false},function(err,file){
-
 	 	console.log(file)
 	 	//db_name=file.url.split('/')[0]
-	 	
 	 	file.parsed=true; 
-		spider.emit('loadFile',file.url)
-	 	zip_files.save(file,function(){setTimeout(function(){spider.emit('walk')},1000);});
+		spider.emit('loadFile',file)	
 	 })
 
 //	console.log(xml_list.length);

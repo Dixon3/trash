@@ -11,10 +11,10 @@ var ftp = new Ftp({
 
 
 var server = new Mongolian("localhost:27017");
-var db_zkupki = server.db("zakupki");
+var db_zakupki = server.db("zakupki");
 
 
-var zip_files = db.collection('zip_files');
+var zip_files = db_zakupki.collection('zip_files');
 zip_files.ensureIndex({"url":1},{unique:true});
 
 function removetrash(dir,line)
@@ -58,7 +58,8 @@ spider.on('nextStep',function(){
 	            	//zip_files.push(file);
 
 	            	var element= {
-	            		url:file
+	            		url:file,
+                        parsed:false
 	            	}
 
 	            	zip_files.insert(element)
