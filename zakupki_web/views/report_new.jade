@@ -1,0 +1,16 @@
+extends layout
+
+block content
+ div
+  form(method='POST')
+    ul
+      input(type="textarea",name='d',coll=40,rows=10,value='Description')
+    ul
+      input(type="textarea",name='ds1',coll=40,rows=10,value='First datasource URL')
+    ul  
+      input(type="textarea",name='ds2',coll=40,rows-10,value='Second datasource URL')
+    ul  
+      input(type="textarea",name='q',coll=40,rows-10,value='{query}')
+    ul
+      input(type='submit',, value='Save')
+ 

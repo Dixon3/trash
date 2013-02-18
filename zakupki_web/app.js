@@ -5,6 +5,7 @@
 
 var express = require('express')
   , routes = require('./routes')
+  , report = require('./routes/report')
   , user = require('./routes/user')
   , http = require('http')
   , path = require('path');
@@ -16,9 +17,7 @@ var app = express();
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
   app.set('views', __dirname + '/views');
-  app.set('view engine', 'ejs');
-  //app.set('view engine', 'mustache');
-  //app.register('.mustache', stache);
+  app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.bodyParser());
@@ -35,10 +34,24 @@ app.configure('development', function(){
 });
 
 app.get('/', routes.index);
-app.get('/:database',routes.database);
-app.get('/:database/:collection',routes.collection);
-app.get('/:database/:collection/:_id',routes.item);
-app.get('/:database/:collection/:field/:val',routes.collection_by_field);
+//app.get('/:collection',routes.database);
+//app.get('/:database/:collection',routes.collection);
+
+//app.get('/:database/:collection/:_id',routes.item);
+app.get('/reports',report.reports)
+app.get('/report/new',report.report_new)
+app.post('/report/new',report.report_new)
+app.get('/report/:_id/',report.report_id)
+app.get('/report/:_id/run',report.report_run)
+app.get('/report/:_id/show',report.report_show)
+app.get('/report/:_id/edit',report.report_edit)
+app.post('/report/:_id/edit',report.report_edit)
+//Work over collections
+app.get('/:collection/',routes.collection);
+app.get('/:collection/find/:_id/',routes.item);
+app.get('/:collection/find/',routes.collection_by_field_and_fields);
+app.get('/:collection/:pk_field/:val/',routes.collection_by_field);
+app.get('/:collection/:pk_field/:val/fields/:fields/',routes.collection_by_field_and_fields);
 app.get('/users', user.list);
 
 

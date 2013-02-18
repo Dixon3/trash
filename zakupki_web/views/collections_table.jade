@@ -1,0 +1,40 @@
+extends layout
+
+mixin parseObject(object,path)
+ ul
+  each val, key in object
+    - var dd = path +'.'+ key;
+    if typeof val === 'string'
+      li= key + ':'
+        - dd = dd.substring(3);  
+        a(href='/'+coll+'/'+dd+'/'+val+'/')= val
+    else if typeof val === 'object'
+      -  var ll = path +'.'+ key;
+      li= key + ':'          
+        mixin parseObject(val,ll)
+
+block content
+  div
+    form
+      ul
+        input(type="textarea",name='q',coll=40,rows=10,value=q)
+      ul  
+        input(type="textarea",name='f',coll=40,rows-10,value=f)
+      ul
+        input(type='submit', value='Search') 
+
+  div Search result:
+    table
+      thead
+        for key,value in fields
+          td= value
+      tbody
+        tr
+        for item in items
+          for value,key in item
+            if key=='_id'
+              td
+                a(href='/'+coll+'/find/'+value+'/')= value
+            else
+              td=value
+          tr

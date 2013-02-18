@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  ul
+  each name in names
+    li 
+      a(href=name+'/') #{name}

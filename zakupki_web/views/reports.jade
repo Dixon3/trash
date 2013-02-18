@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  ul
+  each report in reports
+    li 
+      a(href='/report/'+report._id+'/')= report.description

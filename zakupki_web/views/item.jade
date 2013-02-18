@@ -1,0 +1,20 @@
+extends layout
+
+mixin parseObject(object,path)
+ ul
+  each val, key in object
+    - var dd = path +'.'+ key;
+    if typeof val === 'string'
+      li= key + ':'
+        - dd = dd.substring(3);  
+        a(href='/'+coll+'/'+dd+'/'+val+'/')= val
+    else if typeof val === 'object'
+      -  var ll = path +'.'+ key;
+      li= key + ':'          
+        mixin parseObject(val,ll)
+
+block content
+  mixin parseObject(item,'')
+
+
+  
