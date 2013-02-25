@@ -65,7 +65,7 @@ PK=['uid']
 FK_IS=['uid']
 FK=['parent_uid']
 INTEGER=['month','year','id','versionNumber','kpp','countryCode']
-BIGINTEGER=['inn','regNum','notificationNumber','uid','parent_uid']
+BIGINTEGER=['inn','regNum','uid','parent_uid']
 FLOAT=[]
 NUMERIC=['price','sum','quantity']
 VARCHAR=['']
@@ -247,7 +247,9 @@ def generate_insert_statements(columns_data):
         fields_dict = dict(zip(col_names, curr_val))
         for field in fields_dict.keys():
             if field not in NUMERIC or INTEGER or BIGINTEGER:
-                fields_dict[field]='\''+"".join(fields_dict[field])+'\''
+                field_value="".join(fields_dict[field])
+                field_value=field_value.replace('\'','\'\'')
+                fields_dict[field]='\''+field_value+'\''
         sql_columns= ",".join(fields_dict.keys())
         sql_values= ",".join(fields_dict.values())
         sql = 'insert into '+SCHEMA+'.'+ tab +" ("+sql_columns+") values ("+sql_values+");\n"
