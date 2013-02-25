@@ -4,7 +4,7 @@
 from lxml import etree
 import codecs, sys
 import sys, getopt, os.path
-
+import pickle
 
 xml_file=''
 schema="public"
@@ -44,7 +44,20 @@ elements=root[0].xpath("./*")
 tables=dict()
 values=dict()
 uids=dict()
-#Schema related 
+try: 
+    uids_file = open('uids.pkl', 'rb')
+    uids = pickle.load(uids_file)
+    uids_file.close()
+    
+except:
+    pass
+if CREATE_TABLES==True:
+    try:
+        tables_file = open('tables.pkl','rb')
+        tables=pickle.load(tables_file)
+        tables_file.close()
+    except:
+        pass
 
 SCHEMA=schema
 
@@ -253,12 +266,20 @@ for i in elements:
         print '--Start--',i
         generate_insert_statements(values)
         print '--End--',i
+        output = open('uids.pkl', 'wb')
+        pickle.dump(uids, output)
+        output.close()
     values=dict()
 
 if CREATE_TABLES:
     print '--Start Create Tables-------------------------------------'
     generate_create_tables(tables)
+    output = open('tables.pkl', 'wb')
+    pickle.dump(tables, output)
+    output.close()
     print '--End Create Tables---------------------------------------'
+
+####### Storing all
 
 
 
