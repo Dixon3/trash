@@ -3,10 +3,40 @@
 
 from lxml import etree
 import codecs, sys
+import sys, getopt, os.path
 
-#tree = etree.parse('contract__Vladimirskaja_obl_inc_20110101_000000_20110201_000000_161.xml')
-tree = etree.parse(sys.stdin)
-#tree = etree.parse('contract__Vladimirskaja_obl_inc_20120701_000000_20120801_000000_234.xml')
+
+xml_file=''
+schema="public"
+
+CREATE_TABLES=False
+CREATE_INSERTS=False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "ci", ["help", "output=","stdin","file="])
+except getopt.GetoptError as err:
+        # print help information and exit:
+    print str(err) # will print something like "option -a not recognized"
+    sys.exit(2)
+output = None
+verbose = False
+for o, a in opts:
+    if o == "-v":
+        verbose = True
+    elif o in ("-c",):
+        CREATE_TABLES=True
+    elif o in ("-i",):
+        CREATE_INSERTS=True
+    elif o in ("--stdin"):
+        xml_file=sys.stdin
+    elif o in ("--file"):
+        xml_file=a
+    elif o in ("--schema"):
+        schema=a
+    else:
+        assert False, "unhandled option"
+
+tree = etree.parse(xml_file)
 root = tree.xpath(".")
 elements=root[0].xpath("./*")
 
@@ -15,7 +45,9 @@ tables=dict()
 values=dict()
 uids=dict()
 #Schema related 
-SCHEMA='public'
+
+SCHEMA=schema
+
 PK=['uid']
 FK_IS=['uid']
 FK=['parent_uid']
@@ -25,17 +57,38 @@ FLOAT=[]
 NUMERIC=['price','sum','quantity']
 VARCHAR=['']
 
-# IF need modify field name in output
+# If need modify column names in output or modify tablenames in output
+
 COLUMN_MAPPING={
 'placing':'pplacing'
 }
 
+TABLES_MAPPING={
 
+
+}
 
 def uniq(seq):
     seen = set()
     seen_add = seen.add
     return [ x for x in seq if x not in seen and not seen_add(x)]
+
+def remapColumns(columns):
+    result=[]
+    for i in columns:
+        if i in COLUMN_MAPPING.keys():
+            result.append(COLUMN_MAPPING[i])
+        else:
+            result.append(i)
+    return result
+
+def remapTable(table):
+
+    if table in TABLES_MAPPING.keys():
+        return TABLES_MAPPING[table]
+    else:
+        return table
+
 
 
 def handle_element(parent,elem):
@@ -51,7 +104,7 @@ def handle_element(parent,elem):
         #next_element.append(elem)
     else:
         tables[parent]+=[elem.xpath("local-name()")]
-        column_name=parent+'_'+elem.xpath("local-name()") 
+        column_name=parent+'_'+elem.xpath("local-name()")
         if column_name not in values.keys():
             values[column_name]=[]
             values[column_name]+=[elem.xpath("text()")]
@@ -67,7 +120,7 @@ def generate_types(columns):
     result=[]
     for i in columns:
         if i in PK:
-            result.append(i+' bigint primary key') 
+            result.append(i+' bigint primary key')
         elif i in INTEGER:
             result.append(i+' integer')
         elif i in BIGINTEGER:
@@ -91,22 +144,26 @@ def getParent(table):
     return result
 
 def sortByHierarhy(tables_list):
-    return tables_list.sort()    
-            
+    return tables_list.sort()
 
 def generate_create_tables(tables):
     for i in sorted(tables.keys()):
         columns=uniq(tables[i])
         columns.append(PK[0])
+
+        columns=remapColumns(columns)
         columns=generate_types(columns)
+
+        tab=remapTable(i)
+
         columns=",".join(columns)
         parent = getParent(i)
         #print parent
         sql=''
         if len(parent)==0:
-            sql="create table "+SCHEMA+'.'+ i +" ("+columns+");" 
+            sql="create table "+SCHEMA+'.'+ tab +" ("+columns+");"
         else:
-            sql="create table "+SCHEMA+'.'+ i +" ("+columns+", parent_uid bigint references "+parent+"("+FK_IS[0]+")"+" );"
+            sql="create table "+SCHEMA+'.'+ tab +" ("+columns+", parent_uid bigint references "+parent+"("+FK_IS[0]+")"+" );"
         print sql
 
 
@@ -117,7 +174,7 @@ def extract_column_for_table(table,columns):
         #print prefix
         if len(prefix)>1 and i not in tables.keys():
             if i.split(table)[1][0]=='_' and len(i.split(table)[1].split('_'))-1==1:
-                result+=[i] 
+                result+=[i]
     #print table,result
     return result
 
@@ -135,7 +192,7 @@ def generate_insert_statements(columns_data):
     for tab in tabs:
         col = extract_column_for_table(tab,columns)
         col_names = extract_column_names(col)
-        val =[] 
+        val =[]
         for i in col:
             val.append(columns_data[i])
         ind=0
@@ -144,8 +201,7 @@ def generate_insert_statements(columns_data):
             if i:
                 curr_val.append(i.pop())
             else:
-                curr_val.append('None') 
-    
+                curr_val.append('None')
         uid=1
         parent_uid=None
         if len(getParent(tab))>0:
@@ -168,36 +224,42 @@ def generate_insert_statements(columns_data):
                 uids[tab]=1
             col_names.append('uid')
             curr_val.append(str(uid))
-        #print tab,getParent(tab),uid,parent_uid 
+
+        #Print insert Here
+        #print tab,getParent(tab),uid,parent_uid
+
+        col_names=remapColumns(col_names)      # do remap of Columns
+        tab = remapTable(tab)                 # do remap of Tables
+
         fields_dict = dict(zip(col_names, curr_val))
         for field in fields_dict.keys():
             if field not in NUMERIC or INTEGER or BIGINTEGER:
                 fields_dict[field]='\''+"".join(fields_dict[field])+'\''
-                
         sql_columns= ",".join(fields_dict.keys())
         sql_values= ",".join(fields_dict.values())
         sql = 'insert into '+SCHEMA+'.'+ tab +" ("+sql_columns+") values ("+sql_values+");\n"
         sql = sql.encode('utf-8')
         sys.stdout.write(sql)
 
+
     #print columns
+
+
 
 for i in elements:
     #tables=dict()
     handle_element('',i)
-    print '--Start--',i
-#    generate_insert_statements(values)
+    if  CREATE_INSERTS:
+        print '--Start--',i
+        generate_insert_statements(values)
+        print '--End--',i
     values=dict()
-    print '--End--',i
-    
-    #values=dict()
-print '--Start Create Tables-------------------------------------'
-#print tables
-generate_create_tables(tables)
-print '--End Create Tables---------------------------------------'
-#    print tables
 
-    
+if CREATE_TABLES:
+    print '--Start Create Tables-------------------------------------'
+    generate_create_tables(tables)
+    print '--End Create Tables---------------------------------------'
+
 
 
 
