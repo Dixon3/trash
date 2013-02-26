@@ -77,7 +77,18 @@ COLUMN_MAPPING={
 }
 
 TABLES_MAPPING={
-
+'_notificationEF_lots_lot_auctionProducts_auctionProduct_equivalenceParam':'_notificationEF_lots_lot_auctionProducts_auctionProduct_equival',
+'_notificationEF_lots_lot_auctionProducts_auctionProduct_productRequirement':'_notificationEF_lots_lot_auctionProducts_auctionProduct_product',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement':'_notificationEF_lots_lot_customerRequirements_custReq',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement_customer':'_notificationEF_lots_lot_customerRequirements_custReq_cust',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement_guaranteeApp':'_notificationEF_lots_lot_customerRequirements_',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationEF_lots_lot_customerRequirements_customerRequireme',
+'_notificationEF_lots_lot_documentRequirements_documentRequirement':'_notificationEF_lots_lot_documentRequirements_documentRequireme',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-1.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocRequirements_docReq-1.1.11_docum',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-1.2.11_documentRequirement':'_notificationEF_lots_lot_lotDocRequirements_docReq-1.2.11_docum',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11_docum',
+'_notificationEF_lots_lot_notificationFeatures_notificationFeature':'_notificationEF_lots_lot_notificationFeature',
+'_notificationEF_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationEF_lots_lot_notificationFeature_placementFeature',
 
 }
 
@@ -96,11 +107,16 @@ def remapColumns(columns):
     return result
 
 def remapTable(table):
-
+    warning=''
+    wrong_simbols=['-','.']
     if table in TABLES_MAPPING.keys():
-        return TABLES_MAPPING[table]
-    else:
-        return table
+        table = TABLES_MAPPING[table]
+    if len(table)>63:
+        warning += 'Warning table name too long:' + table + ':'+table[0:63]+'\n'
+    if any(s in table for s in wrong_simbols):
+        warning += 'Warning wrong simbol in table name:' + table + '\n'
+    sys.stderr.write(warning)
+    return table
 
 
 
@@ -168,16 +184,18 @@ def generate_create_tables(tables):
         columns=generate_types(columns)
 
         tab=remapTable(i)
-
         columns=",".join(columns)
+
         parent = getParent(i)
-        #print parent
+        parent = remapTable(parent)
+
         sql=''
         if len(parent)==0:
             sql="create table "+SCHEMA+'.'+ tab +" ("+columns+");"
         else:
-            sql="create table "+SCHEMA+'.'+ tab +" ("+columns+", parent_uid bigint references "+parent+"("+FK_IS[0]+")"+" );"
-        print sql
+            sql="create table "+SCHEMA+'.'+ tab +" ("+columns+", parent_uid bigint references "+parent+"("+FK_IS[0]+")"+" );\n"
+        sys.stdout.write(sql)
+        
 
 
 def extract_column_for_table(table,columns):
