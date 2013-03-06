@@ -112,19 +112,15 @@ def remapTable(table):
     if table in TABLES_MAPPING.keys():
         table = TABLES_MAPPING[table]
     if len(table)>63:
-        warning += 'Warning table name too long:' + table + ':'+table[0:63]+'\n'
+        warning += '--Warning table name too long:' + table + ':'+table[0:63]+'\n'
     if any(s in table for s in wrong_simbols):
-        warning += 'Warning wrong simbol in table name:' + table + '\n'
-    sys.stderr.write(warning)
+        warning += '--Warning wrong simbol in table name:' + table + '\n'
+    if len(warning)>0:
+        sys.stderr.write('\033[93m'+warning+'\033[0m')
     return table
 
-
-
 def handle_element(parent,elem):
-    #print elem
-    #print elem ,parent,":",elem.xpath("text()[normalize-space()]"),elem.xpath("./*"), len(elem.xpath("./*"))
     if len(elem.xpath("./*"))>0:
-
         key=parent+'_'+(elem.xpath("local-name()"))
         if key not in tables.keys():
             tables[parent+'_'+(elem.xpath("local-name()"))]=[]
@@ -256,9 +252,6 @@ def generate_insert_statements(columns_data):
             col_names.append('uid')
             curr_val.append(str(uid))
 
-        #Print insert Here
-        #print tab,getParent(tab),uid,parent_uid
-
         col_names=remapColumns(col_names)      # do remap of Columns
         tab = remapTable(tab)                 # do remap of Tables
 
@@ -273,11 +266,6 @@ def generate_insert_statements(columns_data):
         sql = 'insert into '+SCHEMA+'.'+ tab +" ("+sql_columns+") values ("+sql_values+");\n"
         sql = sql.encode('utf-8')
         sys.stdout.write(sql)
-
-
-    #print columns
-
-
 
 for i in elements:
     #tables=dict()
