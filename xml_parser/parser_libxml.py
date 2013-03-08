@@ -13,7 +13,7 @@ CREATE_TABLES=False
 CREATE_INSERTS=False
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "ci", ["help", "output=","stdin","file="])
+    opts, args = getopt.getopt(sys.argv[1:], "ci", ["help", "output=","stdin","file=","schema="])
 except getopt.GetoptError as err:
         # print help information and exit:
     print str(err) # will print something like "option -a not recognized"
@@ -67,7 +67,7 @@ FK=['parent_uid']
 INTEGER=['month','year','id','versionNumber','kpp','countryCode']
 BIGINTEGER=['inn','regNum','uid','parent_uid']
 FLOAT=[]
-NUMERIC=['price','sum','quantity']
+NUMERIC=['price','sum']#'quantity'] Fond that in contracts it can be text
 VARCHAR=['']
 
 # If need modify column names in output or modify tablenames in output
@@ -77,19 +77,36 @@ COLUMN_MAPPING={
 }
 
 TABLES_MAPPING={
+#FOR NOTIFICATIONS:
+'_notificationOK_lots_lot_customerRequirements_customerRequirement':'_notificationOK_lots_lot_custReqs_custReq',
+'_notificationOK_lots_lot_customerRequirements_customerRequirement_customer':'_notificationOK_lots_lot_custReqs_custReq_cust',
+'_notificationOK_lots_lot_customerRequirements_customerRequirement_guaranteeApp':'_notificationOK_lots_lot_custReqs_custReq_guaranteeApp',
+'_notificationOK_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationOK_lots_lot_custReqs_custReq_guaranteeContract',
+'_notificationOK_lots_lot_notificationFeatures_notificationFeature':'_notificationOK_lots_lot_notifFeat',
+'_notificationOK_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationOK_lots_lot_notifFeat_placementFeature',
+'_notificationOK_competitiveDocumentProvisioning_guarantee_currency':'_notificationOK_competitiveDocProvis_guarantee_cur',
+
+'_notificationZK_lots_lot_customerRequirements_customerRequirement':'_notificationZK_lots_lot_custReqs_custReq',
+'_notificationZK_lots_lot_customerRequirements_customerRequirement_customer':'_notificationZK_lots_lot_custReqs_custReq_cust',
+'_notificationZK_lots_lot_notificationFeatures_notificationFeature':'_notificationZK_lots_lot_notifFeats_notifFeat',
+'_notificationZK_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationZK_lots_lot_notifFeats_notifFeat_placementFeat',
+
+
 '_notificationEF_lots_lot_auctionProducts_auctionProduct_equivalenceParam':'_notificationEF_lots_lot_auctionProducts_auctionProduct_equival',
 '_notificationEF_lots_lot_auctionProducts_auctionProduct_productRequirement':'_notificationEF_lots_lot_auctionProducts_auctionProduct_product',
-'_notificationEF_lots_lot_customerRequirements_customerRequirement':'_notificationEF_lots_lot_customerRequirements_custReq',
-'_notificationEF_lots_lot_customerRequirements_customerRequirement_customer':'_notificationEF_lots_lot_customerRequirements_custReq_cust',
-'_notificationEF_lots_lot_customerRequirements_customerRequirement_guaranteeApp':'_notificationEF_lots_lot_customerRequirements_',
-'_notificationEF_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationEF_lots_lot_customerRequirements_customerRequireme',
-'_notificationEF_lots_lot_documentRequirements_documentRequirement':'_notificationEF_lots_lot_documentRequirements_documentRequireme',
-'_notificationEF_lots_lot_lotDocRequirements_docReq-1.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocRequirements_docReq-1.1.11_docum',
-'_notificationEF_lots_lot_lotDocRequirements_docReq-1.2.11_documentRequirement':'_notificationEF_lots_lot_lotDocRequirements_docReq-1.2.11_docum',
-'_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11_docum',
-'_notificationEF_lots_lot_notificationFeatures_notificationFeature':'_notificationEF_lots_lot_notificationFeature',
-'_notificationEF_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationEF_lots_lot_notificationFeature_placementFeature',
-
+'_notificationEF_lots_lot_customerRequirements_customerRequirement':'_notificationEF_lots_lot_custReqs_custReq',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement_customer':'_notificationEF_lots_lot_custReqs_custReq_cust',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement_guaranteeApp':'_notificationEF_lots_lot_custReqs_guaranteeApp',
+'_notificationEF_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationEF_lots_lot_custReqs_custReq_guaranteeContract',
+'_notificationEF_lots_lot_documentRequirements_documentRequirement':'_notificationEF_lots_lot_docReqs_docReq',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-1.1.11':'_notificationEF_lots_lot_lotDocReqs_docReq_1_1_11',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-1.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocReqs_docReq_1_1_11_docReq',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-1.2.11':'_notificationEF_lots_lot_lotDocReqs_docReq_1_2_11',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-1.2.11_documentRequirement':'_notificationEF_lots_lot_lotDocReqs_docReq_1_2_11_docReq',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11':'_notificationEF_lots_lot_lotDocReqs_docReq_2_1_11',
+'_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocReqs_docReq_2_1_11_docReq',
+'_notificationEF_lots_lot_notificationFeatures_notificationFeature':'_notificationEF_lots_lot_notifFeat',
+'_notificationEF_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationEF_lots_lot_notifFeat_placementFeature',
 }
 
 def uniq(seq):
@@ -118,6 +135,7 @@ def remapTable(table):
     if len(warning)>0:
         sys.stderr.write('\033[93m'+warning+'\033[0m')
     return table
+
 
 def handle_element(parent,elem):
     if len(elem.xpath("./*"))>0:
@@ -254,7 +272,6 @@ def generate_insert_statements(columns_data):
 
         col_names=remapColumns(col_names)      # do remap of Columns
         tab = remapTable(tab)                 # do remap of Tables
-
         fields_dict = dict(zip(col_names, curr_val))
         for field in fields_dict.keys():
             if field not in NUMERIC or INTEGER or BIGINTEGER:
