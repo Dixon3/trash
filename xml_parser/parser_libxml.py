@@ -82,14 +82,20 @@ TABLES_MAPPING={
 '_notificationOK_lots_lot_customerRequirements_customerRequirement_customer':'_notificationOK_lots_lot_custReqs_custReq_cust',
 '_notificationOK_lots_lot_customerRequirements_customerRequirement_guaranteeApp':'_notificationOK_lots_lot_custReqs_custReq_guaranteeApp',
 '_notificationOK_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationOK_lots_lot_custReqs_custReq_guaranteeContract',
+'_notificationOK_lots_lot_customerRequirements_customerRequirement_KBK':'_notificationOK_lots_lot_custReqs_custReq_KBK',
 '_notificationOK_lots_lot_notificationFeatures_notificationFeature':'_notificationOK_lots_lot_notifFeat',
 '_notificationOK_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationOK_lots_lot_notifFeat_placementFeature',
 '_notificationOK_competitiveDocumentProvisioning_guarantee_currency':'_notificationOK_competitiveDocProvis_guarantee_cur',
-
+'_notificationOK_lots_lot_notificationFeatures_notificationFeature':'_notificationOK_lots_lot_notifFeat',
+'_notificationOK_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationOK_lots_lot_notifFeat_placementFeature',
+'_notificationOK_notificationPlacement_notificationFeatures_notificationFeature':'_notificationOK_notifPlacement_notifFeats_notifFeat',
+'_notificationOK_notificationPlacement_notificationFeatures_notificationFeature_placementFeature':'_notificationOK_notifPlacement_notifFeats_notiiFeat_placemFeat',
 '_notificationZK_lots_lot_customerRequirements_customerRequirement':'_notificationZK_lots_lot_custReqs_custReq',
 '_notificationZK_lots_lot_customerRequirements_customerRequirement_customer':'_notificationZK_lots_lot_custReqs_custReq_cust',
 '_notificationZK_lots_lot_notificationFeatures_notificationFeature':'_notificationZK_lots_lot_notifFeats_notifFeat',
 '_notificationZK_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationZK_lots_lot_notifFeats_notifFeat_placementFeat',
+'_notificationZK_lots_lot_customerRequirements_customerRequirement_KBK':'_notificationZK_lots_lot_custReqs_custReq_KBK',
+'_notificationZK_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationZK_lots_lot_custReqs_custReq_guaranteeContract',
 
 
 '_notificationEF_lots_lot_auctionProducts_auctionProduct_equivalenceParam':'_notificationEF_lots_lot_auctionProducts_auctionProduct_equival',
@@ -107,6 +113,16 @@ TABLES_MAPPING={
 '_notificationEF_lots_lot_lotDocRequirements_docReq-2.1.11_documentRequirement':'_notificationEF_lots_lot_lotDocReqs_docReq_2_1_11_docReq',
 '_notificationEF_lots_lot_notificationFeatures_notificationFeature':'_notificationEF_lots_lot_notifFeat',
 '_notificationEF_lots_lot_notificationFeatures_notificationFeature_placementFeature':'_notificationEF_lots_lot_notifFeat_placementFeature',
+
+'_notificationPO_lots_lot_customerRequirements_customerRequirement':'_notificationPO_lots_lot_custReqs_custReq',
+'_notificationPO_lots_lot_customerRequirements_customerRequirement_customer':'_notificationPO_lots_lot_custReqs_custReq_cust',
+'_notificationPO_lots_lot_customerRequirements_customerRequirement_guaranteeApp':'_notificationPO_lots_lot_custReqs_custReq_guaranteeApp',
+'_notificationPO_lots_lot_customerRequirements_customerRequirement_guaranteeContract':'_notificationPO_lots_lot_custReqs_custReq_guaranteeContract',
+
+'_notificationSZ_lots_lot_customerRequirements_customerRequirement':'_notificationSZ_lots_lot_custReqs_custReq',
+'_notificationSZ_lots_lot_customerRequirements_customerRequirement_customer':'_notificationSZ_lots_lot_custReqs_custReq_cust',
+
+
 }
 
 def uniq(seq):
@@ -125,16 +141,21 @@ def remapColumns(columns):
 
 def remapTable(table):
     warning=''
+    result=''
     wrong_simbols=['-','.']
     if table in TABLES_MAPPING.keys():
-        table = TABLES_MAPPING[table]
-    if len(table)>63:
+        result = TABLES_MAPPING[table]
+    if len(result)>63:
         warning += '--Warning table name too long:' + table + ':'+table[0:63]+'\n'
-    if any(s in table for s in wrong_simbols):
-        warning += '--Warning wrong simbol in table name:' + table + '\n'
+    if any(s in result for s in wrong_simbols):
+        warning += '--Warning wrong simbol in table name:' + result + '\n'
     if len(warning)>0:
         sys.stderr.write('\033[93m'+warning+'\033[0m')
-    return table
+    if len(result)>0:
+        return result
+    else:
+        return table
+
 
 
 def handle_element(parent,elem):
@@ -231,62 +252,107 @@ def extract_column_names(raw):
         result.append(tmp[-1][1:])
     return result
 
-def generate_insert_statements(columns_data):
-    tabs=sorted(tables.keys())
-    columns=columns_data.keys()
-    for tab in tabs:
-        col = extract_column_for_table(tab,columns)
-        col_names = extract_column_names(col)
-        val =[]
-        for i in col:
-            val.append(columns_data[i])
-        ind=0
-        curr_val=[]
-        for i in val:
-            if i:
-                curr_val.append(i.pop())
-            else:
-                curr_val.append('None')
-        uid=1
-        parent_uid=None
-        if len(getParent(tab))>0:
-            if tab in uids.keys():
-                uids[tab]+=1
-                uid=uids[tab]
-                parent_uid=uids[getParent(tab)]
-            else:
-                uids[tab]=1
-                parent_uid=uids[getParent(tab)] 
-            col_names.append('uid')
+def print_insert_statements(table,columns,values):
+    tab=table
+    col_names=columns
+    curr_val=values
+    fields_dict = dict(zip(col_names, curr_val))
+    for field in fields_dict.keys():
+        if field not in NUMERIC or INTEGER or BIGINTEGER:
+            field_value="".join(fields_dict[field])
+            field_value=field_value.replace('\'','\'\'')
+            fields_dict[field]='\''+field_value+'\''
+    sql_columns= ",".join(fields_dict.keys())
+    sql_values= ",".join(fields_dict.values())
+    sql = 'insert into '+SCHEMA+'.'+ tab +" ("+sql_columns+") values ("+sql_values+");\n"
+    sql = sql.encode('utf-8')
+    sys.stdout.write(sql)
+
+
+def generate_uids(tab):
+    uid=1
+    parent_uid=None
+    if len(getParent(tab))>0:
+        if tab in uids.keys():
+            uids[tab]+=1
+            uid=uids[tab]
+            parent_uid=uids[getParent(tab)]
+        else:
+            uids[tab]=1
+            parent_uid=uids[getParent(tab)]
+    else:
+        if tab in uids.keys():
+            uids[tab]+=1
+            uid=uids[tab]
+        else:
+            uids[tab]=1
+    return uid,parent_uid
+
+
+def generate_insert(tab,col_names,val):
+    curr_val=[]
+    for i in val:
+        if i:
+            curr_val.append(i.pop())
+        else:
+            curr_val.append('None')
+
+    uid,parent_uid=generate_uids(tab)
+
+    if 'uid' not in col_names:
+        col_names.append('uid')
+        curr_val.append(str(uid))
+    else:
+        #print col_names,curr_val
+        #print col_names.index('uid')
+        #curr_val[col_names.index('uid')]=str(uid)
+        curr_val.append(str(uid))
+    if parent_uid != None:
+        if 'parent_uid' not in col_names:
             col_names.append('parent_uid')
-            curr_val.append(str(uid))
             curr_val.append(str(parent_uid))
         else:
-            if tab in uids.keys():
-                uids[tab]+=1
-                uid=uids[tab]
-            else:
-                uids[tab]=1
-            col_names.append('uid')
-            curr_val.append(str(uid))
+            curr_val.append(str(parent_uid))
+            #curr_val[col_names.find('parent_uid')]=str(uid)
 
-        col_names=remapColumns(col_names)      # do remap of Columns
-        tab = remapTable(tab)                 # do remap of Tables
-        fields_dict = dict(zip(col_names, curr_val))
-        for field in fields_dict.keys():
-            if field not in NUMERIC or INTEGER or BIGINTEGER:
-                field_value="".join(fields_dict[field])
-                field_value=field_value.replace('\'','\'\'')
-                fields_dict[field]='\''+field_value+'\''
-        sql_columns= ",".join(fields_dict.keys())
-        sql_values= ",".join(fields_dict.values())
-        sql = 'insert into '+SCHEMA+'.'+ tab +" ("+sql_columns+") values ("+sql_values+");\n"
-        sql = sql.encode('utf-8')
-        sys.stdout.write(sql)
+    col_names=remapColumns(col_names)      # do remap of Columns
+    tab = remapTable(tab)                 # do remap of Tables
+    print_insert_statements(tab,col_names,curr_val)
+
+
+
+def generate_insert_statements(columns_data):
+    tabs=sorted(tables.keys())
+    columns=sorted(columns_data)
+    for tab in tabs:
+        col = extract_column_for_table(tab,columns) #Get what is columns not nested tables
+        col_names = extract_column_names(col)   #Get names of this cloumns
+        val =[]
+        for i in col:
+            val.append(columns_data[i])     #Fetch data for columns
+        
+        
+        #print tab,"Val:",valA
+        #if type(val) is type([])A
+        #print val
+        max_list = [len(j)  for j in val]
+
+        #if  all(isinstance(n, list) and len(n)>1  for n in val):
+        if len(max_list)>1:
+            #print max_list
+            for i in range(max(max_list)):
+                generate_insert(tab,col_names,val)
+        else:
+            generate_insert(tab,col_names,val)
+
 
 for i in elements:
     #tables=dict()
     handle_element('',i)
+    for i in  sorted(values):
+        #print i, values[i]
+        pass
+    
     if  CREATE_INSERTS:
         print '--Start--',i
         generate_insert_statements(values)
