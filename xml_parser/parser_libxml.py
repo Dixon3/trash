@@ -5,9 +5,11 @@ from lxml import etree
 import codecs, sys
 import sys, getopt, os.path
 import pickle
+import re
+import collections
 
 xml_file=''
-schema="public"
+schema=""
 
 CREATE_TABLES=False
 CREATE_INSERTS=False
@@ -73,10 +75,40 @@ VARCHAR=['']
 # If need modify column names in output or modify tablenames in output
 
 COLUMN_MAPPING={
-'placing':'pplacing'
+'placing':'pplacing',
+'order':'"order"',
+'from':'"from"',
 }
 
 TABLES_MAPPING={
+'protocol[A-Z]{2,}[0-9]|prot[A-Z]{2,}[0-9]':'prtk',
+'protocol':'prot',
+#'_protocolLot':'_iprotLot',
+'application':'app',
+'admission':'adm',
+'Result':'Res',
+'Commission':'Com',
+'Member':'Mem',
+'Rejected':'Rej',
+'Reason':'Reas',
+'Participant':'Part',
+'Condition':'Cond',
+'evaluation':'ev',
+'requirement':'req',
+'Requirement':'Req',
+'Compliance':'Comp',
+'attributes':'attr',
+'contract':'contr',
+'criterion':'crit',
+#'protocol':'prot',
+'notification[A-Z]{2,}[0-9]?':'notf',
+'notification':'notif',
+'Feature':'Feat',
+'-':'_',
+'\.':'_',
+}
+
+STABLES_MAPPING={
 #FOR NOTIFICATIONS:
 '_notificationOK_lots_lot_customerRequirements_customerRequirement':'_notificationOK_lots_lot_custReqs_custReq',
 '_notificationOK_lots_lot_customerRequirements_customerRequirement_customer':'_notificationOK_lots_lot_custReqs_custReq_cust',
@@ -143,8 +175,14 @@ def remapTable(table):
     warning=''
     result=''
     wrong_simbols=['-','.']
-    if table in TABLES_MAPPING.keys():
-        result = TABLES_MAPPING[table]
+    #if table in TABLES_MAPPING.keys():
+#    print 'Start:'
+    for i in TABLES_MAPPING.keys():	
+        #result = TABLES_MAPPING[table]
+#	print i
+        table = re.sub(i, TABLES_MAPPING[i], table)
+    #    print result
+    result =table
     if len(result)>63:
         warning += '--Warning table name too long:' + table + ':'+table[0:63]+'\n'
     if any(s in result for s in wrong_simbols):
@@ -159,12 +197,16 @@ def remapTable(table):
 
 
 def handle_element(parent,elem):
+    #print parent,elem
     if len(elem.xpath("./*"))>0:
         key=parent+'_'+(elem.xpath("local-name()"))
+	key=remapTable(key)
         if key not in tables.keys():
-            tables[parent+'_'+(elem.xpath("local-name()"))]=[]
+            tables[key]=[]
+            #tables[parent+'_'+(elem.xpath("local-name()"))]=[]
         if key not in values.keys():
-            values[parent+'_'+(elem.xpath("local-name()"))]=[]
+            values[key]=[]
+            #values[parent+'_'+(elem.xpath("local-name()"))]=[]
         #next_element.append(elem)
     else:
         tables[parent]+=[elem.xpath("local-name()")]
@@ -174,10 +216,10 @@ def handle_element(parent,elem):
             values[column_name]+=[elem.xpath("text()")]
         else:
             values[column_name]+=[elem.xpath("text()")]
-           # print values
-       # print values
     for i in elem:
-        par=parent+'_'+elem.xpath("local-name()")
+        el = remapTable(elem.xpath("local-name()"))
+        par=parent+'_'+el
+        #par=remapTable(par)
         handle_element(par,i)
 
 def generate_types(columns):
@@ -225,19 +267,28 @@ def generate_create_tables(tables):
         parent = remapTable(parent)
 
         sql=''
+	schema=''
+
+	if len(SCHEMA)>0:
+		schema=SCHEMA+'.'
         if len(parent)==0:
-            sql="create table "+SCHEMA+'.'+ tab +" ("+columns+");"
+            sql="create table "+schema + tab +" ("+columns+");"
         else:
-            sql="create table "+SCHEMA+'.'+ tab +" ("+columns+", parent_uid bigint references "+parent+"("+FK_IS[0]+")"+" );\n"
+            sql="create table "+schema + tab +" ("+columns+", parent_uid bigint references "+parent+"("+FK_IS[0]+")"+" );\n"
         sys.stdout.write(sql)
         
 
 
 def extract_column_for_table(table,columns):
+    
     result=[]
+    #print 'Table:',table
+    #print 'Columns:',columns
+    #print tables.keys()
     for i in columns:
+#	print i
         prefix = i.split(table)
-        #print prefix
+ #       print prefix
         if len(prefix)>1 and i not in tables.keys():
             if i.split(table)[1][0]=='_' and len(i.split(table)[1].split('_'))-1==1:
                 result+=[i]
@@ -264,7 +315,13 @@ def print_insert_statements(table,columns,values):
             fields_dict[field]='\''+field_value+'\''
     sql_columns= ",".join(fields_dict.keys())
     sql_values= ",".join(fields_dict.values())
-    sql = 'insert into '+SCHEMA+'.'+ tab +" ("+sql_columns+") values ("+sql_values+");\n"
+
+
+    schema=''
+    if len(SCHEMA)>0:
+        schema=SCHEMA+'.'
+
+    sql = 'insert into '+ schema + tab +" ("+sql_columns+") values ("+sql_values+");\n"
     sql = sql.encode('utf-8')
     sys.stdout.write(sql)
 
@@ -349,10 +406,6 @@ def generate_insert_statements(columns_data):
 for i in elements:
     #tables=dict()
     handle_element('',i)
-    for i in  sorted(values):
-        #print i, values[i]
-        pass
-    
     if  CREATE_INSERTS:
         print '--Start--',i
         generate_insert_statements(values)
