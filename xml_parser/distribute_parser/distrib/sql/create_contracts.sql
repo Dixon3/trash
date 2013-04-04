@@ -14,7 +14,7 @@ create table _contrSign_customer (regNum bigint,fullName text,uid SERIAL PRIMARY
 create table _contrSign_foundation (uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign(uid) on delete cascade );
 create table _contrSign_foundation_order (notificationNumber text,foundationProtocolNumber text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign_foundation(uid) on delete cascade );
 create table _contrSign_suppliers (uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign(uid) on delete cascade );
-create table _contrSign_suppliers_supplier (participantType text,inn bigint,kpp integer,organizationName text,factualAddress text,postAddress text,contactEMail text,contactPhone text,contactFax text,additionalInfo text,organizationForm text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign_suppliers(uid) on delete cascade );
+create table _contrSign_suppliers_supplier (idnumberextension bigint,participantType text,inn bigint,kpp integer,organizationName text,factualAddress text,postAddress text,contactEMail text,contactPhone text,contactFax text,additionalInfo text,organizationForm text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign_suppliers(uid) on delete cascade );
 create table _contrSign_suppliers_supplier_contactInfo (lastName text,firstName text,middleName text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign_suppliers_supplier(uid) on delete cascade );
 create table _contrSign_suppliers_supplier_country (countryCode integer,countryFullName text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contrSign_suppliers_supplier(uid) on delete cascade );
 create table _contr_currency (code text,name text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr(uid) on delete cascade );
@@ -46,7 +46,7 @@ create table _contr_scan_documentMeta (sid text,fileName text,docDescription tex
 create table _contr_scan_documentMeta_cryptoSigns (signature text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr_scan_documentMeta(uid) on delete cascade );
 create table _contr_singleCustomerReas (id integer,name text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr(uid) on delete cascade );
 create table _contr_suppliers (uid SERIAL PRIMARY KEY, parent_uid bigint references _contr(uid) on delete cascade );
-create table _contr_suppliers_supplier (participantType text,inn bigint,kpp integer,organizationForm text,organizationName text,factualAddress text,postAddress text,contactEMail text,contactPhone text,contactFax text,additionalInfo text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr_suppliers(uid) on delete cascade );
+create table _contr_suppliers_supplier (idnumber bigint,idnumberextension bigint, participantType text,inn bigint,kpp integer,organizationForm text,organizationName text,factualAddress text,postAddress text,contactEMail text,contactPhone text,contactFax text,additionalInfo text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr_suppliers(uid) on delete cascade );
 create table _contr_suppliers_supplier_contactInfo (lastName text,firstName text,middleName text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr_suppliers_supplier(uid) on delete cascade );
 create table _contr_suppliers_supplier_country (countryCode integer,countryFullName text,uid SERIAL PRIMARY KEY, parent_uid bigint references _contr_suppliers_supplier(uid) on delete cascade );
 --End Create Tables---------------------------------------
