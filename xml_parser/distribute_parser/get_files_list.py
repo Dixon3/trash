@@ -57,8 +57,13 @@ def ftp_walk(ftp):
                 ftp.cwd('..')
         except Exception, e:
             path=ftp.pwd() + '/'+str(item)
-            curr.execute("INSERT into files_list (path) values (%s)", (path,))
-            curr.execute("commit;")
+	    try:
+                curr.execute("INSERT into files_list (path) values (%s)", (path,))
+            except Exception, e:
+                print e
+            finally:
+                curr.execute("commit;")
+            
 
 ftp_walk(ftp)
 
