@@ -1,0 +1,14 @@
+{% extends "generic.html" %}
+{% load render_table from django_tables2 %}
+
+
+{% block content %}
+{% render_table table %}
+
+{% for child_table in child_tables %}
+
+{% render_table child_table %}
+
+{% endfor %}
+
+{% endblock %}

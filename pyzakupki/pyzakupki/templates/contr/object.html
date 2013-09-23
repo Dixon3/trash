@@ -1,0 +1,26 @@
+{% extends "generic.html" %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+
+<table class="paleblue">
+    <tr>
+    {% for i in parents %}
+         <td> <a href="/obj/{{i.str_name}}/{{i.uid}}">{{i}}</a></td>
+    {% endfor %}
+    </tr>
+</table>
+
+{% render_table table %}
+
+{% for i in child_tables %}
+<table class="paleblue">
+    <tr>   
+         <td> <a>{{i.str_name}}</a></td>
+    </tr>
+</table>
+{% render_table i %}</li>
+
+{% endfor %}
+
+{% endblock %}

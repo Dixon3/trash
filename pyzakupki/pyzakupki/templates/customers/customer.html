@@ -1,0 +1,68 @@
+<body>
+
+
+{% if upper_parents %}
+    <div class="upper_parents">
+Вышестоящая организация в части подтверждения полномочий в сфере размещения заказов
+        <table>
+         {% for cust in upper_parents %}
+         <td><a href="/customers/{{cust.id}}/">{{cust.short_name}}</a></td>
+         {% endfor %}
+        </table>
+    </div>
+{% endif %}
+
+{% if admin_parents %}
+    <div class="admin_parents">
+Административная принадлежность
+        <table>
+         {% for cust in admin_parents %}
+         <td><a href="/customers/{{cust.id}}/">{{cust.short_name}}</a></td>
+         {% endfor %}
+        </table>
+    </div>
+{% endif %}
+
+
+Код бюджета: <a href="/budget/{{customer.buget_code}}/">{{customer.buget_name}}</a>
+
+<table>
+{% for name, value in customer.get_fields %}
+  {% if value %}
+    <tr>
+    <td>{{ name }}</td> <td> {{ value }}</td>
+    </tr>
+  {% endif %}
+<table>
+{% endfor %}
+
+{% if childs %}
+    <div class="childs_parents">
+        <table>
+         {% for cust in childs %}
+         <tr>
+         <td><a href="/customers/{{cust.id}}/">{{cust.short_name}}</a></td>
+         </tr>
+         {% endfor %}
+        </table>
+    </div>
+
+{% endif %}
+
+
+{% if admin_childs %}
+    <div class="childs_parents">
+Административные подчиненные
+        <table>
+         {% for cust in admin_childs %}
+         <tr>
+         <td><a href="/customers/{{cust.id}}/">{{cust.short_name}}</a></td>
+         </tr>
+         {% endfor %}
+        </table>
+    </div>
+
+{% endif %}
+
+
+</body>

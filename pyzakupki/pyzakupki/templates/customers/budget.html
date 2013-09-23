@@ -1,0 +1,17 @@
+<body>
+
+
+
+{% if customers %}
+    <div class="childs_parents">
+        <table>
+         {% for cust in customers %}
+         <tr>
+         <td><a href="/customers/{{cust.id}}/">{{cust.short_name}}</a></td>
+         </tr>
+         {% endfor %}
+        </table>
+ </div>
+{% endif %}
+
+</body>
