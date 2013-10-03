@@ -9,7 +9,8 @@ create table _contrProcedure_executions_execution (execDate text,documentName te
 create table _contrProcedure_executions_stage (month integer,year integer,uid bigint primary key, parent_uid bigint references _contrProcedure_executions(uid) on delete cascade );
 create table _contrProcedure_terminations (uid bigint primary key, parent_uid bigint references _contrProcedure(uid) on delete cascade );
 create table _contrProcedure_terminations_termination (paid text,terminationDate text,reason text,uid bigint primary key, parent_uid bigint references _contrProcedure_terminations(uid) on delete cascade );
-create table _contrSign (id integer,number text,signDate text,protocolDate text,uid bigint primary key);create table _contrSign_customer (regNum bigint,fullName text,uid bigint primary key, parent_uid bigint references _contrSign(uid) on delete cascade );
+create table _contrSign (id integer,number text,signDate text,protocolDate text,uid bigint primary key,file_id integer references files_list(id) on delete cascade);
+create table _contrSign_customer (regNum bigint,fullName text,uid bigint primary key, parent_uid bigint references _contrSign(uid) on delete cascade );
 create table _contrSign_foundation (uid bigint primary key, parent_uid bigint references _contrSign(uid) on delete cascade );
 create table _contrSign_foundation_order (notificationNumber text,foundationProtocolNumber text,uid bigint primary key, parent_uid bigint references _contrSign_foundation(uid) on delete cascade );
 create table _contrSign_suppliers (uid bigint primary key, parent_uid bigint references _contrSign(uid) on delete cascade );

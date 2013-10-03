@@ -27,12 +27,12 @@ create table _notf_lots_lot_customerReqs_customerReq_guaranteeContract (procedur
 create table _notf_lots_lot_documentReqs (uid bigint primary key, parent_uid bigint references _notf_lots_lot(uid) on delete cascade );
 create table _notf_lots_lot_documentReqs_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_documentReqs(uid) on delete cascade );
 create table _notf_lots_lot_lotDocReqs (uid bigint primary key, parent_uid bigint references _notf_lots_lot(uid) on delete cascade );
-create table _notf_lots_lot_lotDocReqs_docReq_1_1_11 (uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1_1(uid) on delete cascade );
-create table _notf_lots_lot_lotDocReqs_docReq_1_1_11_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1_1_11(uid) on delete cascade );
-create table _notf_lots_lot_lotDocReqs_docReq_1_2_11 (uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1_2(uid) on delete cascade );
-create table _notf_lots_lot_lotDocReqs_docReq_1_2_11_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1_2_11(uid) on delete cascade );
-create table _notf_lots_lot_lotDocReqs_docReq_2_1_11 (uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_2_1(uid) on delete cascade );
-create table _notf_lots_lot_lotDocReqs_docReq_2_1_11_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_2_1_11(uid) on delete cascade );
+create table _notf_lots_lot_lotDocReqs_docReq_1111 (uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1_1(uid) on delete cascade );
+create table _notf_lots_lot_lotDocReqs_docReq_1111_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1111(uid) on delete cascade );
+create table _notf_lots_lot_lotDocReqs_docReq_1211 (uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1_2(uid) on delete cascade );
+create table _notf_lots_lot_lotDocReqs_docReq_1_2_11_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_1211(uid) on delete cascade );
+create table _notf_lots_lot_lotDocReqs_docReq_2111 (uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_2_1(uid) on delete cascade );
+create table _notf_lots_lot_lotDocReqs_docReq_2111_documentReq (sid text,ordinalNumber text,reqValue text,docName text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_lotDocReqs_docReq_2111(uid) on delete cascade );
 create table _notf_lots_lot_notifFeats (uid bigint primary key, parent_uid bigint references _notf_lots_lot(uid) on delete cascade );
 create table _notf_lots_lot_notifFeats_notifFeat (prefValue text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_notifFeats(uid) on delete cascade );
 create table _notf_lots_lot_notifFeats_notifFeat_placementFeat (code text,name text,uid bigint primary key, parent_uid bigint references _notf_lots_lot_notifFeats_notifFeat(uid) on delete cascade );
@@ -52,7 +52,7 @@ create table _notf_order_placer (regNum bigint,fullName text,uid bigint primary 
 create table _notf_placingWay (code text,name text,uid bigint primary key, parent_uid bigint references _notf(uid) on delete cascade );
 create table _notf_printForm (fileName text,url text,uid bigint primary key, parent_uid bigint references _notf(uid) on delete cascade );
 create table _notf_printForm_cryptoSigns (signature text,uid bigint primary key, parent_uid bigint references _notf_printForm(uid) on delete cascade );
-create table _notifCancel (id integer,notificationNumber text,versionNumber integer,uid bigint primary key);create table _notifCancel_documentMetas (uid bigint primary key, parent_uid bigint references _notifCancel(uid) on delete cascade );
+create table _notifCancel (id integer,notificationNumber text,versionNumber integer,uid bigint primary key, file_id integer references files_list(id) on delete cascade);create table _notifCancel_documentMetas (uid bigint primary key, parent_uid bigint references _notifCancel(uid) on delete cascade );
 create table _notifCancel_documentMetas_documentMeta (sid text,fileName text,docDescription text,url text,uid bigint primary key, parent_uid bigint references _notifCancel_documentMetas(uid) on delete cascade );
 create table _notifCancel_documentMetas_documentMeta_cryptoSigns (signature text,uid bigint primary key, parent_uid bigint references _notifCancel_documentMetas_documentMeta(uid) on delete cascade );
 create table _notifCancel_lots (uid bigint primary key, parent_uid bigint references _notifCancel(uid) on delete cascade );

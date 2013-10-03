@@ -1,8 +1,9 @@
 --Start Create Tables-------------------------------------
-create table _prtk (notificationNumber text,protocolNumber text,versionNumber integer,place text,protocolDate text,signDate text,publishDate text,href text,foundationProtocolNumber text,parentProtocolNumber text,uid bigint primary key);create table _prtk_commission (regNumber text,name text,uid bigint primary key, parent_uid bigint references _prtk(uid) on delete cascade,file_id integer references files_list(id) on delete cascade);
+create table _prtk (notificationNumber text,protocolNumber text,versionNumber integer,place text,protocolDate text,signDate text,publishDate text,href text,foundationProtocolNumber text,parentProtocolNumber text,uid bigint primary key,file_id integer references files_list(id) on delete cascade);
+create table _prtk_commission (regNumber text,name text,uid bigint primary key, parent_uid bigint references _prtk(uid) on delete cascade);
 create table _prtk_commission_protComMems (uid bigint primary key, parent_uid bigint references _prtk_commission(uid) on delete cascade );
 create table _prtk_commission_protComMems_protComMem (id integer,name text,present text,uid bigint primary key, parent_uid bigint references _prtk_commission_protComMems(uid) on delete cascade );
-create table _prtk_commission_protComMems_protComMem_role (name text,uid bigint primary key, parent_uid bigint references _prtk_commission_protComMems_protComMem(uid) on delete cascade );
+create table _prtk_commission_protComMems_protComMem_role (roleId integer,name text,uid bigint primary key, parent_uid bigint references _prtk_commission_protComMems_protComMem(uid) on delete cascade );
 create table _prtk_documentMetas (uid bigint primary key, parent_uid bigint references _prtk(uid) on delete cascade );
 create table _prtk_documentMetas_documentMeta (sid text,fileName text,docDescription text,url text,uid bigint primary key, parent_uid bigint references _prtk_documentMetas(uid) on delete cascade );
 create table _prtk_documentMetas_documentMeta_cryptoSigns (signature text,uid bigint primary key, parent_uid bigint references _prtk_documentMetas_documentMeta(uid) on delete cascade );
@@ -18,7 +19,7 @@ create table _prtk_protLots_protLot_apps_app_admRess_admRes (admitted text,uid b
 create table _prtk_protLots_protLot_apps_app_admRess_admRes_appRejReas (explanation text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess_admRes(uid) on delete cascade );
 create table _prtk_protLots_protLot_apps_app_admRess_admRes_appRejReas_nsiRejectReas (id integer,reason text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess_admRes_appRejReas(uid) on delete cascade );
 create table _prtk_protLots_protLot_apps_app_admRess_admRes_protComMem (id integer,name text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess_admRes(uid) on delete cascade );
-create table _prtk_protLots_protLot_apps_app_admRess_admRes_protComMem_role (name text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess_admRes_protComMem(uid) on delete cascade );
+create table _prtk_protLots_protLot_apps_app_admRess_admRes_protComMem_role (roleid bigint,name text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess_admRes_protComMem(uid) on delete cascade );
 create table _prtk_protLots_protLot_apps_app_admRess_appRejReas (explanation text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess(uid) on delete cascade );
 create table _prtk_protLots_protLot_apps_app_admRess_appRejReas_nsiRejectReas (id integer,reason text,uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app_admRess_appRejReas(uid) on delete cascade );
 create table _prtk_protLots_protLot_apps_app_appParts (uid bigint primary key, parent_uid bigint references _prtk_protLots_protLot_apps_app(uid) on delete cascade );

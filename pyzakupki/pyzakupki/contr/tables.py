@@ -22,11 +22,13 @@ def create_table(obj,obj_type):
 
         def render_regnum(self,value):
             return mark_safe('''<a href="/obj/%s/regnum/?q=%s">%s</a>'''% (str_obj,value,value))
-
         def render_inn(self,value):
             return mark_safe('''<a href="/obj/%s/inn/?q=%s">%s</a>'''% (str_obj,value,value))
         def render_notificationnumber(self,value):
-            return mark_safe('''<a href="/obj/Notf/notificationnumber/?q=%s">%s</a>'''% (value,value))
+            notif_search=mark_safe('''<a href="/obj/Notf/notificationnumber/?q=%s">n|</a>'''% (value))
+            protc_search=mark_safe('''<a href="/obj/Prtk/notificationnumber/?q=%s">p|</a>'''% (value))
+            contr_search=mark_safe('''<a href="/obj/ContrFoundationOther/notificationnumber/sear/?q=\'%s\'&v=Contr">c</a>'''% (value))
+            return mark_safe('''<a href="/obj/%s/notificationnumber/?q=%s">%s</a>|'''% (str_obj,value,value))+notif_search+protc_search +contr_search
 
 
     return SimpleTable(obj)

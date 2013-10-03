@@ -132,7 +132,8 @@ class ZakupkiXMLParser(object):
         if any(s in result for s in wrong_simbols):
             warning += '--Warning wrong simbol in table name:' + result + '\n'
         if len(warning)>0:
-            sys.stderr.write('\033[93m'+warning+'\033[0m')
+            pass
+            #sys.stderr.write('\033[93m'+warning+'\033[0m')
         if len(result)>0:
             return result
         else:

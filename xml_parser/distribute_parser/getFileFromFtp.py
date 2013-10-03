@@ -10,8 +10,6 @@ from helper import DBConnector
 import psycopg2
 
 
-file_id=64
-filename='/Adygeja_Resp/contracts/contract__Adygeja_Resp_inc_20110101_000000_20110201_000000_2.xml.zip'
 
 def parse_file_id(file_id,filename):
     def get_zip_data(filename,callback):
@@ -36,7 +34,9 @@ def parse_file_id(file_id,filename):
         for i in elements:
             parser.handle_element('',i)
             print '--Start--',i
+           # print 'BEGIN;'
             parser.generate_insert_statements(parser.values)
+           # print 'commit;'
             print '--End--',i
         parser.save_uids()
         parser.values=dict()
@@ -50,11 +50,14 @@ def main():
     password = 'zakupki'
     )
     curr=db.cursor()
-    curr.execute("SELECT id,path FROM files_list")
-    
-    while True :
+    #curr.execute("SELECT id,path FROM files_list where inserted=false")
+    while  True :
+        curr.execute("SELECT id,path FROM files_list where inserted=false order by id;")
         (id,path) = curr.fetchone()
+	print "--Try get file" , id , path
         parse_file_id(id,path)
+	curr.execute("update files_list set inserted=true where id=%s;commit;",(id,))
+
     
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from parser_libxml import ZakupkiXMLParser
 from lxml import etree
 from helper import DBConnector
 import psycopg2
-
+import datetime
 
 
 def parse_file_id(file_id,filename):
@@ -53,15 +53,18 @@ def main():
     #curr.execute("SELECT id,path FROM files_list where inserted=false")
     while  True :
         try:
-            curr.execute("SELECT id,path FROM files_list where inserted=false order by id;")
+            curr.execute("SELECT id,path FROM files_list where inserted=false and locked=false order by id;")
             (id,path) = curr.fetchone()
-	    curr.execute("update files_list set inserted=true where id=%s;commit;",(id,))
+            dt = datetime.datetime.now()
+	    curr.execute("update files_list set locked=true ,lock_time=now()  where id=%s;commit;",(id,))
 	    print "--Try get file" , id , path
             print "RAISE warning 'Start to read file:%s';"%(path,)
 	    print "RAISE warning 'Start to read file:%s';"%(id,)
             parse_file_id(id,path)
-#	    curr.execute("update files_list set inserted=true where id=%s;commit;",(id,))
-	except:
+            dt = datetime.datetime.now()
+	    curr.execute("update files_list set locked=false,inserted=true,insert_time=now() where id=%s;commit;",(id,))
+	except Exception as E:
+	    print "Poblem!",E
             pass
 
     
