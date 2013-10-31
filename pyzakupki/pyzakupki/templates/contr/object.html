@@ -3,24 +3,46 @@
 
 {% block content %}
 
-<table class="paleblue">
-    <tr>
-    {% for i in parents %}
-         <td> <a href="/obj/{{i.str_name}}/{{i.uid}}">{{i}}</a></td>
-    {% endfor %}
-    </tr>
-</table>
+<div>
+<ol class="breadcrumb">
+            {% for i in parents %}
+     <li><a href="/obj/{{i.str_name}}/{{i.uid}}">{{i}}</a></li>
+            {% endfor %}
+</ol>
+</div>
 
 {% render_table table %}
 
-{% for i in child_tables %}
-<table class="paleblue">
-    <tr>   
-         <td> <a>{{i.str_name}}</a></td>
-    </tr>
-</table>
-{% render_table i %}</li>
+<!-- Sub Tabs -->
+<ul class="nav nav-pills">
+    {% for i in child_tables%}
+    <li><a href="#{{i.str_name}}" data-toggle="pill">{{i.str_name}}</a></li>
+    {% endfor %}
+</ul>
 
-{% endfor %}
+<!-- Tab panes -->
+<div class="tab-content">
+    {% for i in child_tables %}
+    <div class="tab-pane" id="{{i.str_name}}"> 
+        {% render_table i %}
+        
+        
+        {% if i.Meta.is_map == True %}      
+
+            <div id="map">
+            </div> 
+            <script> var map = L.map("map").setView([{{ i.data.data.0.lat }}, {{ i.data.data.0.lng }}], 13);
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);           
+            L.marker([{{ i.data.data.0.lat }}, {{ i.data.data.0.lng }}]).addTo(map)
+            .bindPopup('"{{ i.data.data.0.palce }}"')
+            .openPopup();
+            </script>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+    
 
 {% endblock %}

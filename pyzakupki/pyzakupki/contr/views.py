@@ -17,6 +17,7 @@ import inspect,sys
 import collections
 import logging
 import os.path
+
 logger = logging.getLogger(__name__)
 
 def generate_table(objects_query,obj_type):
@@ -101,6 +102,8 @@ def object(request,obj_type,obj_id):
         objs_query=mdl.objects.filter(pk__in=ids) 
         tab=generate_table(objs_query,mdl)
         tab.str_name=model_string
+        print dir(tab.data.data)
+        print tab.data.data[0]
         child_tables.append(tab)
     return render(request,'contr/object.html',{'parents':parents,'table':main_table,'child_tables':child_tables})
 
@@ -110,7 +113,7 @@ def object(request,obj_type,obj_id):
 
 
 def search(request,obj_type,column): 
-
+    form=SearchForm()
     if request.method == 'POST': # If the form has been submitted...
         form = ContactForm(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
@@ -118,16 +121,16 @@ def search(request,obj_type,column):
             # ...
             return HttpResponseRedirect('/thanks/') # Redirect after POST
     else:
-        form = ContactForm() # An unbound form
+        form = SearchForm() # An unbound form
 
     obj_type = model_factory(obj_type)
     q=request.GET.get('q')
-    print column,q
+    logger.debug("Search:%s=%s"%(column,q))
     kwargs = {column:q}
     obj= obj_type.objects.filter(**kwargs)
     main_table=generate_table(obj,obj_type)
     RequestConfig(request,paginate=True).configure(main_table)
-    return render(request,'contr/object.html',{'table':main_table})
+    return render(request,'contr/object.html',{'form':form,'table':main_table})
    
 
 def generate_tables(common_table,table):
@@ -194,24 +197,20 @@ def search_obj_by_child(request,obj_type,column):
     join_to_curr = generate_join(tables_to_current)
     
     joins = " and ".join (join_to_repr+join_to_curr)
+
     q="select \
        %s.*\
        from \
        %s \
        where \
-       %s and %s.%s=%s limit 10000;" %(represent_table,select_from_statement,joins,current_table,column,q)
+       %s and %s.%s=%s;" %(represent_table,select_from_statement,joins,current_table,column,q)
 
     print "Query:",q
 
     o=repr.objects.raw(q)
 
     tab=generate_table([dict(i.__dict__) for i in o],repr)
-    RequestConfig(request,paginate=False).configure(tab)
-
-
+    RequestConfig(request,paginate=True).configure(tab)
     return render(request,'contr/object.html',{'table':tab})
-        
-    
-    
-    
+
 

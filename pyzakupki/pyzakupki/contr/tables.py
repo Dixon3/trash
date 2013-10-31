@@ -15,9 +15,15 @@ def create_table(obj,obj_type):
         class Meta:
             model=obj_type
             str_obj_name = str_obj
+            is_map=False
+            print str_obj_name.find("Geocode")
+            if str_obj_name.find("Geocode") >= 0:
+                print "This have map!!!"
+                is_map = True           
+            print is_map
             fullstr = "/obj/%s/{{record.uid}}/" % str_obj_name
             title = str_obj
-            attrs = {"class": "paleblue"}
+            attrs = {"class": "table table-hover table_condensed paleblue"}
             exclude = ('uid','parent_uid','file','signature')
 
         def render_regnum(self,value):

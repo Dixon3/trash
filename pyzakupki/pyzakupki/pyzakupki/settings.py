@@ -70,6 +70,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
+    'templates/static/',
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
@@ -134,7 +135,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
-STATIC_URL = '/static/'
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
@@ -142,8 +142,7 @@ STATIC_URL = '/static/'
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
-
+    'disable_existing_loggers': True,
     'formatters': {
         'verbose': {
             'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
@@ -159,7 +158,6 @@ LOGGING = {
         }
     },
     'handlers': {
-
         'console':{
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -174,9 +172,14 @@ LOGGING = {
     },
     'loggers': {
 
-        'pyzakupki': {
+        '': {
             'handlers': ['console',],
-            'level': 'DEBUG',
+            'level': 'INFO',
+        },
+
+        'contr.views': {
+             'handlers': ['console',],
+             'level': 'DEBUG',
         },
 
         'django.request': {

@@ -1,10 +1,42 @@
-{% load render_table from django_tables2 %}
-<!doctype html>
+{#{% load render_table from django_tables2 %}#}
+<!DOCTYPE HTML>
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="/static/django_tables2/themes/paleblue/css/screen.css" />                                 
+        <link rel="stylesheet" type="text/css" href="/static/django_tables2/themes/paleblue/css/screen.css" />
+        <link rel="stylesheet" href="/static/bootstrap-3.0.0/dist/css/bootstrap.css">
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css" />
+        <!--[if lte IE 8]>
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
+        <![endif]-->
+        <link rel="stylesheet" type="text/css" href="/static/my_css/my.css" />
+        <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
     </head>
     <body>
-       {% block content %}{% endblock %}
+       <ul class="navbar navbar-default nav-tabs" role="navigation">
+      {#  <div class="navbar-header"> #}
+           <a class="navbar-brand" href="#search" id="search_nav" >Search</a>
+           <a class="navbar-brand" href="#advanced_search">Advanced Search</a>
+      {#  </div>  #}
+        </ul> 
+    <div id="search" >
+    <form class="form-horizontal" role="form">
+    </form>
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <!-- Bootstrap core JavaScript
+     ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/bootstrap-3.0.0/assets/js/jquery.js"></script>
+    <script src="/static/bootstrap-3.0.0/dist/js/bootstrap.min.js"></script>
+    
+    <script>
+
+$('#search').hide();
+$('#search_nav').click(function(){
+    $('#search').toggle();
+})
+    </script>
     </body>
 </html>

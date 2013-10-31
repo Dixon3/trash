@@ -6,3 +6,10 @@ class ContactForm(forms.Form):
     message = forms.CharField()
     sender = forms.EmailField()
     cc_myself = forms.BooleanField(required=False)
+
+
+class SearchForm(forms.Form):
+    object=forms.CharField()
+    column=forms.CharField()
+    query=forms.CharField()
+
