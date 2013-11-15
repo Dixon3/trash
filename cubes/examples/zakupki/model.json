@@ -1,0 +1,185 @@
+{
+    "cubes": [
+        {
+            "name": "_contr",
+            "label": "All Contracts",
+            "dimensions": [
+                "currentcontractstage",
+                "_contr_execution",
+                "_contr_customer",
+                "_contr_finances_budget",
+                "_contr_suppliers_supplier",                
+                "_contr_products_product",
+                "_contr_products_product_okdp",
+                "regnum",
+                "contr_id"
+            ],
+            "details":["currentcontractstage"],
+            "measures":["price"],
+            "mappings": {
+            "currentcontractstage":"currentcontractstage",
+            "regnum":"regnum",
+            "contr_id":"id"
+            },
+            "joins": [
+                {
+                    "master": "_contr.uid",
+                    "detail": "_contr_customer.parent_uid",
+                    "alias":"_contr_customer"
+                },
+                {
+                    "master": "_contr.uid",
+                    "detail": "_contr_execution.parent_uid",
+                    "alias":"_contr_execution"
+                },
+                {
+                    "master": "uid",
+                    "detail": "_contr_finances.parent_uid"    
+                },
+                {
+                    "master": "_contr_finances.uid",
+                    "detail": "_contr_finances_budget.parent_uid"
+                },
+                {
+                    "master": "_contr_finances.uid",
+                    "detail": "_contr_finances_budgetary.parent_uid"
+                },
+                {
+                    "master": "uid",
+                    "detail": "_contr_suppliers.parent_uid"
+                },   
+                {
+                    "master": "_contr_suppliers.uid",
+                    "detail": "_contr_suppliers_supplier.parent_uid"
+                },
+                {
+                    "master": "uid",
+                    "detail": "_contr_products.parent_uid"
+                },
+                {
+                    "master": "_contr_products.uid",
+                    "detail": "_contr_products_product.parent_uid"
+                },
+                {
+                    "master": "_contr.uid",
+                    "detail": "_contr_execution.parent_uid"
+                },
+                {    
+                     "master":"_contr_products_product.uid",
+                     "detail":"_contr_products_product_okdp.parent_uid"   
+                }
+            ]
+        }
+    ],
+    "dimensions": [
+        
+        {   
+            "name":"_contr_execution",
+            "label":"Execution date",
+            "info":{
+                "cv-datefilter": true,
+                "cv-datefilter-hierarchy": "yearly"
+            },
+            "levels":[
+                {
+                       "name":"year",
+                       "label":"Year",
+                       "info": { "cv-datefilter-field": "year" }
+                },
+                {
+                      "name":"month",
+                      "label":"Month",
+                      "info": { "cv-datefilter-field": "month" }
+                }               
+            ],
+            "hierarchies": [
+                  {
+                    "name": "monthly",
+                    "label": "Monthly",
+                    "levels": [ "year", "month"]
+                }
+            ]
+            
+
+        },
+
+        {
+            "name": "_contr_customer",
+            "attributes": [
+                "regnum",
+                "fullname"
+            ],
+            "key":"regnum",
+            "label_attribute":"fullname"
+        },
+        {
+            "name": "_contr_finances"            
+        },
+        {
+            "name": "_contr_finances_budget",
+            "attributes":["code","name"]
+        },
+        {
+            "name": "_contr_finances_budgetary",
+            "info": {
+                "cv-datefilter": true,
+                "cv-datefilter-hierarchy": "ym"
+            },
+            "levels": [
+            { "name": "year", "attributes": ["year"] },
+            { "name": "month", "attributes": ["month"]}
+            ],
+            "hierarchie":[
+            {"name": "ym", "levels":["year", "month"]}
+            ],
+            "default_hierarchy_name": "ym"
+        },
+        {
+            "name": "_contr_suppliers_supplier",
+            "attributes":["inn","organizationname"]
+        },
+        {
+            "name": "_contr_products"            
+        },
+        {
+            "name": "_contr_products_product",
+            "label": "Products Details",
+            "levels":[
+            {
+                "name":"Product",
+                "attributes":["name"]               
+            },
+            {
+                "name":"Unit Price",
+                "attributes":["price"]
+            },
+            {
+                "name":"Quantity",
+                "attributes":["quantity"]
+            },
+            {
+                "name":"Sum",
+                "attributes":["sum"]
+            }
+            ]
+        },
+        {
+            "name": "_contr_products_product_okdp",
+            "label": "Products OKDP",
+            "attributes":["code","name"]
+        },
+        {
+            "name":"regnum",
+            "label":"Contract Regnum"
+        },
+        {
+            "name":"currentcontractstage",
+            "label":"Current Contract Stage"
+        },
+        {
+            "name":"contr_id",
+            "label":"Contract ID"
+        }   
+        
+    ]
+}
