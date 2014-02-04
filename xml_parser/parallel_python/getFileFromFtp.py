@@ -9,9 +9,10 @@ import lxml
 #from helper import DBConnector
 import psycopg2
 import datetime
-import pp
+
 import sys,os,traceback
 
+from helper import DBConnector 
 
 def get_zip_data(filename,callback):
         ftp = ftplib.FTP("ftp.zakupki.gov.ru", "free", "free")
@@ -19,7 +20,7 @@ def get_zip_data(filename,callback):
         return file      
     
 
-def parse_file_id(file_id,filename,dbConn_string):
+def parse_file_id(file_id,filename):
     zipdata = StringIO.StringIO()
     get_zip_data(filename,zipdata.write)
     try:
@@ -38,7 +39,7 @@ def parse_file_id(file_id,filename,dbConn_string):
             parser.file_id=str(file_id)
             parser.writeToConsole()
             parser.writeToDb()
-            parser.setDbConn(dbConn_string)
+            #parser.setDbConn(dbConn_string)
             data = []
             for i in elements:
                 parser.handle_element('',i)
@@ -54,32 +55,33 @@ def parse_file_id(file_id,filename,dbConn_string):
 
 def main():
     
-    dbConn_string="host='localhost' dbname='zakupki' user='zakupki' password='zakupki'"
-    print "Connecting to database\n ->%s" % (dbConn_string)
-
-    dbConn = psycopg2.connect(dbConn_string)
-    curr=dbConn.cursor()
-    curr.execute("SELECT id,path FROM files_list where inserted=false and locked=false and pg_try_advisory_lock(tableoid::INTEGER,id)  limit 1")
+    db_connector = DBConnector('default')   
+    curr=db_connector.getCursor()
+    conn=db_connector.getConn()
+    curr.execute("SELECT id,path FROM files_list where inserted=false and locked=false and pg_try_advisory_lock(tableoid::INTEGER,id) and path like '%contract%' limit 1")
     [(id,path)] = curr.fetchall()
-    job_server=pp.Server()
+
     results=[]
     while id > 0:  
         try:
             dt = datetime.datetime.now()
-            curr.execute("update files_list set locked=true ,lock_time=now() where id=%s;commit;",(id,))
+            curr.execute("update files_list set locked=true ,lock_time=now() where id=%s",(id,))
+            conn.commit()
             print "--Try get file" , id , path
             print "--RAISE warning 'Start to read file:%s:%s';" % (id,path)
             dt = datetime.datetime.now()
-            parse_file_id(id,path,dbConn_string)       
+            parse_file_id(id,path)       
         except Exception as e:
             print "--Poblem!",e
+            conn.rollback()
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)
             print(exc_type, fname, exc_tb.tb_lineno)
             traceback.print_exc()
         finally:
-            curr.execute("update files_list set locked=false,inserted=true,insert_time=now() where id=%s; select pg_advisory_unlock(tableoid::INTEGER,id) from files_list where id = %s;commit;",(id,id))
-            curr.execute("SELECT id,path FROM files_list where inserted=false and locked=false and pg_try_advisory_lock(tableoid::INTEGER,id)  limit 1")
+            curr.execute("update files_list set locked=false,inserted=true,insert_time=now() where id=%s; select pg_advisory_unlock(tableoid::INTEGER,id) from files_list where id = %s",(id,id))
+            conn.commit()
+            curr.execute("SELECT id,path FROM files_list where inserted=false and locked=false and pg_try_advisory_lock(tableoid::INTEGER,id) and path like '%contract%' limit 1")
             [(id,path)] = curr.fetchall()
     print "Seems, there is no more to insert."
     print results

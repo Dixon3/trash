@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from lxml import etree
-import codecs, sys
+
+
 import sys, getopt, os.path
 import pickle
 import re
 import collections
-import psycopg2
 import datetime
-import pdb
+import psycopg2
+
+from helper import DBConnector 
+from lxml import etree
 xml_file=''
 schema=""
 
@@ -120,6 +122,9 @@ class ZakupkiXMLParser(object):
         self.write_to_console=choice
 
     def writeToDb(self,choice=True):
+        self.db_connector = DBConnector('default')
+        self.dbConn=self.db_connector.getConn()
+        self.curr=self.db_connector.getCursor()
         self.write_to_db=choice
 
     def output(self,sql):
