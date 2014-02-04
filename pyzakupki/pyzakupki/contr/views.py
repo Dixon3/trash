@@ -2,7 +2,8 @@
 
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render,render_to_response
+from django.forms.models import modelformset_factory
 from customers.models import CustomersOrgs
 from django.db import connection
 from contr.models import *
@@ -17,6 +18,7 @@ import inspect,sys
 import collections
 import logging
 import os.path
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -133,84 +135,31 @@ def search(request,obj_type,column):
     return render(request,'contr/object.html',{'form':form,'table':main_table})
    
 
-def generate_tables(common_table,table):
-    """Generate list of tables between common_table and table"""
-    delta_tables = table.replace(common_table,"")
-    delta_tables_list = delta_tables.split("_")
-    print delta_tables_list
-    
-    tmp=common_table  
-    result=[]    
-
-    for i in delta_tables_list[1:]:
-        result.append(tmp+'_'+i)
-        tmp = tmp+'_'+i
-    result = [common_table]+result
-    return result
-
-def generate_join(tables_list):
-
-    tmp=tables_list[0]
-    s=[]
-   
-    for i in tables_list[1:]:
-        s.append("%s.uid = %s.parent_uid" % (tmp,i))
-        tmp=i
-
-    #result = " and ".join(s)
-    result = s 
-    print "Generated join:",result
-
-    return result
-
-def get_uniq(seq):
-    seen = set()
-    seen_add = seen.add
-    return [ x for x in seq if x not in seen and not seen_add(x)]
-
 def search_obj_by_child(request,obj_type,column):
-
     obj_type_mdl = model_factory(obj_type)
     q=request.GET.get('q')
     view=request.GET.get('v')
     repr=model_factory(view)
-    kwargs = {column:q}
-    #print dir(obj_type_mdl._meta.db_table)
-    current_table = obj_type_mdl._meta.db_table
-    represent_table = repr._meta.db_table
-    #obj = obj_type.objects.filter(**kwargs)
-    print current_table,represent_table, zip(represent_table,current_table)
-    # Root to build join SQL request
-    common_table=os.path.commonprefix([current_table,represent_table])
-
-    common_table = "_"+common_table.split("_")[1] 
-    tables_to_current=generate_tables(common_table,current_table)
-    tables_to_represent = generate_tables(common_table,represent_table)
-    
-    print "Common table:",common_table
-    print "tables_to_current:",tables_to_current
-    print "tables_to_represent:",tables_to_represent
-
-    select_from_statement = ",".join(get_uniq(tables_to_current+tables_to_represent))
-    print "select from:", select_from_statement
-    join_to_repr = generate_join(tables_to_represent)        
-    join_to_curr = generate_join(tables_to_current)
-    
-    joins = " and ".join (join_to_repr+join_to_curr)
-
-    q="select \
-       %s.*\
-       from \
-       %s \
-       where \
-       %s and %s.%s=%s;" %(represent_table,select_from_statement,joins,current_table,column,q)
-
-    print "Query:",q
-
-    o=repr.objects.raw(q)
-
+    sm=SearchManager()
+    o=sm.SearchObjects(obj_type_mdl,column,q,view)    
+    o=sm.SearchObjects2(obj_type_mdl,column,q,view)    
     tab=generate_table([dict(i.__dict__) for i in o],repr)
     RequestConfig(request,paginate=True).configure(tab)
     return render(request,'contr/object.html',{'table':tab})
 
-
+def objects_json(request):
+    response_data={}
+    q=request.GET.get('q')
+    clsmembers = inspect.getmembers(sys.modules['contr.models'], inspect.isclass)
+    members = dict(clsmembers).keys()
+    #filtered = [i for i in members if i.startswith(q)]
+    response_data['objects']=members
+    return HttpResponse(json.dumps(response_data), content_type="application/json")
+    
+def search_by_q(request):
+    if request.method == "POST":
+        print request
+    
+    searchform=SearchForm()
+    return render(request,'search.html', {"searchform": searchform,})
+    

@@ -9,7 +9,6 @@ class ContactForm(forms.Form):
 
 
 class SearchForm(forms.Form):
-    object=forms.CharField()
-    column=forms.CharField()
     query=forms.CharField()
+
 

@@ -125,7 +125,8 @@ class ZakupkiXMLParser(object):
     def output(self,sql):
         if self.write_to_db:
             try:
-                self.curr.execute(sql+'commit;')
+                self.curr.execute(sql)
+                #self.dbConn+'commit;')
             except psycopg2.Error as e:
                 self.dbConn.rollback()
                 dt = datetime.datetime.now()

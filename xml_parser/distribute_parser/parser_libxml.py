@@ -83,6 +83,7 @@ class ZakupkiXMLParser(object):
         #'_protocolLot':'_iprotLot',
         'application':'app',
         'admission':'adm',
+        'position':'pos',
         'Result':'Res',
         'Commission':'Com',
         'Member':'Mem',

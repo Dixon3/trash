@@ -9,20 +9,18 @@
         <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.ie.css" />
         <![endif]-->
         <link rel="stylesheet" type="text/css" href="/static/my_css/my.css" />
+        <link rel="stylesheet" href="/static/select2-3.4.5/select2.css"/>
         <script src="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.js"></script>
     </head>
     <body>
        <ul class="navbar navbar-default nav-tabs" role="navigation">
       {#  <div class="navbar-header"> #}
-           <a class="navbar-brand" href="#search" id="search_nav" >Search</a>
+           <a class="navbar-brand" href="/search/" id="search_nav" >Search</a>
            <a class="navbar-brand" href="#advanced_search">Advanced Search</a>
       {#  </div>  #}
         </ul> 
-    <div id="search" >
-    <form class="form-horizontal" role="form">
-    </form>
-    </div>
-
+    
+    {% block forms %} {% endblock %}
     {% block content %}{% endblock %}
 
     <!-- Bootstrap core JavaScript
@@ -30,13 +28,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="/static/bootstrap-3.0.0/assets/js/jquery.js"></script>
     <script src="/static/bootstrap-3.0.0/dist/js/bootstrap.min.js"></script>
-    
-    <script>
-
-$('#search').hide();
-$('#search_nav').click(function(){
-    $('#search').toggle();
-})
-    </script>
+    <script src="/static/select2-3.4.5/select2.js"></script>
+    {% block scripts %} {% endblock %}
     </body>
 </html>

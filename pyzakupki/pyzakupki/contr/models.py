@@ -23,6 +23,11 @@ class Contr(models.Model):
     protocoldate = models.TextField(blank=True)
     uid = models.IntegerField(primary_key=True)
     file = models.ForeignKey('FilesList', null=True, blank=True)
+
+    def get_absolute_url(self):
+        return "/obj/Contr/%i"%self.uid
+
+
     class Meta:
         db_table = '_contr'
 
@@ -1330,107 +1335,13 @@ class CustomersOrgs(models.Model):
     class Meta:
         db_table = 'customers_orgs'
 
-class FilesByRegion(models.Model):
-    id = models.IntegerField(null=True, blank=True)
-    path = models.CharField(max_length=-1, blank=True)
-    region = models.TextField(blank=True)
-    doc_type = models.TextField(blank=True)
-    class Meta:
-        db_table = 'files_by_region'
-
-class FilesByRegionArr(models.Model):
-    region = models.TextField(blank=True)
-    doc_type = models.TextField(blank=True)
-    file_ids = models.TextField(blank=True) # This field type is a guess.
-    class Meta:
-        db_table = 'files_by_region_arr'
 
 class FilesList(models.Model):
-    id = models.IntegerField()
-    path = models.CharField(max_length=-1, unique=True, blank=True)
+    uid = models.IntegerField()
+    path = models.CharField(max_length=4000, unique=True, blank=True)
     insert_time = models.DateTimeField(null=True, blank=True)
-    inserted = models.BooleanField(null=True, blank=True)
+    inserted = models.NullBooleanField()
     lock_time = models.DateTimeField(null=True, blank=True)
-    locked = models.BooleanField(null=True, blank=True)
+    locked = models.NullBooleanField()
     class Meta:
         db_table = 'files_list'
-
-class MoskovskajaOblAgr(models.Model):
-    regnum = models.BigIntegerField(null=True, blank=True)
-    publishdate = models.TextField(blank=True)
-    signdate = models.TextField(blank=True)
-    price = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    fullname = models.TextField(blank=True)
-    organizationform = models.TextField(blank=True)
-    organizationname = models.TextField(blank=True)
-    postaddress = models.TextField(blank=True)
-    factualaddress = models.TextField(blank=True)
-    string_agg = models.TextField(blank=True)
-    prod_price_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_sum_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_qty = models.TextField(blank=True)
-    class Meta:
-        db_table = 'moskovskaja_obl_agr'
-
-class MoskvaAgr(models.Model):
-    regnum = models.BigIntegerField(null=True, blank=True)
-    publishdate = models.TextField(blank=True)
-    signdate = models.TextField(blank=True)
-    price = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    fullname = models.TextField(blank=True)
-    organizationform = models.TextField(blank=True)
-    organizationname = models.TextField(blank=True)
-    postaddress = models.TextField(blank=True)
-    factualaddress = models.TextField(blank=True)
-    string_agg = models.TextField(blank=True)
-    prod_price_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_sum_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_qty = models.TextField(blank=True)
-    class Meta:
-        db_table = 'moskva_agr'
-
-class ProductFact3(models.Model):
-    prod_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_price = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_qty = models.TextField(blank=True)
-    customer_regnum = models.BigIntegerField(null=True, blank=True)
-    supplier_inn = models.BigIntegerField(null=True, blank=True)
-    path = models.CharField(max_length=-1, blank=True)
-    class Meta:
-        db_table = 'product_fact3'
-
-class ProductsFact(models.Model):
-    prod_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_price = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_qty = models.TextField(blank=True)
-    product_uid = models.IntegerField(null=True, blank=True)
-    file_id = models.IntegerField(null=True, blank=True)
-    supplier_uid = models.IntegerField(null=True, blank=True)
-    customer_uid = models.IntegerField(null=True, blank=True)
-    class Meta:
-        db_table = 'products_fact'
-
-class ProductsFact2(models.Model):
-    prod_sum = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_price = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    prod_qty = models.TextField(blank=True)
-    customer_regnum = models.BigIntegerField(null=True, blank=True)
-    supplier_inn = models.BigIntegerField(null=True, blank=True)
-    class Meta:
-        db_table = 'products_fact2'
-
-class Test1(models.Model):
-    regnum = models.BigIntegerField(null=True, blank=True)
-    publishdate = models.TextField(blank=True)
-    signdate = models.TextField(blank=True)
-    price = models.DecimalField(null=True, max_digits=65535, decimal_places=65535, blank=True)
-    fullname = models.TextField(blank=True)
-    organizationform = models.TextField(blank=True)
-    organizationname = models.TextField(blank=True)
-    factualaddress = models.TextField(blank=True)
-    postaddress = models.TextField(blank=True)
-    class Meta:
-        db_table = 'test_1'
-
-class TulskContr(models.Model):
-    pass

@@ -13,7 +13,13 @@ urlpatterns = patterns('',
     url(r'^contr/(?P<contr_id>\d+)/$','contr.views.contr',name='customers.views.contr'),
     url(r'^obj/(?P<obj_type>\w+)/(?P<obj_id>\d+)/$','contr.views.object',name='obj_type_id'),
     url(r'^obj/(?P<obj_type>\w+)/(?P<column>\w+)/$','contr.views.search',name='search_obj_column'),
-    url(r'^obj/(?P<obj_type>\w+)/(?P<column>\w+)/sear/$','contr.views.search_obj_by_child',name='search_obj_column_subobject')        
+    url(r'^obj/(?P<obj_type>\w+)/(?P<column>\w+)/sear/$','contr.views.search_obj_by_child',name='search_obj_column_subobject'),
+    url(r'^obj/(?P<obj_type>\w+)/(?P<column>\w+)/sear/$','contr.views.search_obj_by_child',name='search_obj_column_subobject'),
+    url(r'^obj/all/json','json_objects_get'),
+    url(r'^api/objects.json','contr.views.objects_json'),
+    url(r'^search/', include('haystack.urls')),
+    #url(r'^search/','contr.views.search_by_q'),
+    
     #url(r'^pyzakupki/', include('customers.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

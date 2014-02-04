@@ -49,4 +49,6 @@ create table _contr_suppliers (uid bigint primary key, parent_uid bigint referen
 create table _contr_suppliers_supplier (participantType text,inn bigint,kpp integer,organizationForm text,organizationName text,factualAddress text,postAddress text,contactEMail text,contactPhone text,contactFax text,additionalInfo text,uid bigint primary key, parent_uid bigint references _contr_suppliers(uid) on delete cascade );
 create table _contr_suppliers_supplier_contactInfo (lastName text,firstName text,middleName text,uid bigint primary key, parent_uid bigint references _contr_suppliers_supplier(uid) on delete cascade );
 create table _contr_suppliers_supplier_country (countryCode integer,countryFullName text,uid bigint primary key, parent_uid bigint references _contr_suppliers_supplier(uid) on delete cascade );
+create table _contr_suppliers_supplier_legalForm (code integer,singularName text,uid bigint primary key, parent_uid bigint references _contr_suppliers_supplier(uid) on delete cascade );
+
 --End Create Tables---------------------------------------

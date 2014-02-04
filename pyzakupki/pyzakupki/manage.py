@@ -2,6 +2,9 @@
 import os
 import sys
 
+
+sys.path.append('./lib') # Add modules in lib
+
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pyzakupki.settings")
 

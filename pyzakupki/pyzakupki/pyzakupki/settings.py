@@ -129,11 +129,30 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_tables2',
+    # Added.
+    'haystack',
+    'contr',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
+
+#HAYSTACK_CONNECTIONS = {
+#    'default': {
+#    'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#    'PATH': os.path.join(os.path.dirname(__file__),'..', 'whoosh_index'),
+#    },
+#            }
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.solr_backend.SolrEngine',
+        'URL': 'http://127.0.0.1:8983/solr/collection1'
+        # ...or for multicore...
+        # 'URL': 'http://127.0.0.1:8983/solr/mysite',
+    },
+}
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
