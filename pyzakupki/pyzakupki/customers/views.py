@@ -2,11 +2,16 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from customers.models import CustomersOrgs
+from customers.models import CustomerContrAggr
+from contr.models import *
 from django.db import connection
-from contr.models import ContrCustomer
-import django_tables2 as tables
+from contr.models import *
+from contr.tables import *
+from contr.utils import *
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Max
 
+import django_tables2 as tables
 import datetime,sys,inspect
 
 def model_factory(string):
@@ -27,43 +32,53 @@ def generate_table(object,obj_type='None'):
     return table
 
 
-
 def index(request):
-    now = datetime.datetime.now()
-    return render(request, 'current_datetime.html', {'current_date': now})
+    if request.GET.get('order') in ['count','-count','sum','-sum']:
+       order = request.GET.get('order')
+    else:
+       order = '-count'
+    customers_list = CustomerContrAggr.objects.all().order_by(order)
+    paginator = Paginator(customers_list, 25) # Show 25 contacts per page
+    page = request.GET.get('page')
+    try:
+        customers = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        customers = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        customers = paginator.page(paginator.num_pages)
+    return render(request,'customers/index.html', {"customers": customers,"order":order})
+    #return render(request, 'customers/index.html', {'table': table})
+
+def customer(request,regnum):
+    if request.GET.get('order') in ['price','-price','signdate','-signdate']:
+       order = request.GET.get('order')
+    else:
+       order = '-signdate'
+    customer=CustomersOrgs.objects.get(own_spz=regnum)
+    contracts_list = Contr.objects.filter(contrcustomer__regnum=regnum).order_by(order)
+    paginator = Paginator(contracts_list, 25) # Show 25 contacts per page
+    page = request.GET.get('page')
+    try:
+        contracts = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        contracts = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        contracts = paginator.page(paginator.num_pages)
+
+    return render(request,'customers/customer.html',{'customer':customer,'contracts':contracts,"order":order})
 
 
-def customer(request,customer_id):
-    c=CustomersOrgs.objects.get(id=customer_id)
-    c2=CustomersOrgs.objects.filter(id=customer_id)
-    generate_table(c2)
-    upper_parents=[]
-    upper_parent=c.get_upper_parent()
-    upper_parents.append(upper_parent)
-    while (upper_parent!=c.get_upper_parent()):
-        tmp=upper_parent
-        upper_parent=tmp.get_upper_parent()
-        upper_parents.append(tmp)      
-    admin_parents=[]
-    admin_parent=c.get_admin_parent()
-    admin_parents.append(admin_parent)
-
-    while (admin_parent!=c.get_admin_parent()):
-        tmp=admin_parent
-        admin_parent=tmp.get_admin_parent()
-        admin_parents.append(tmp)
-    childs=c.get_childs()       
-    admin_childs = c.get_admin_childs()
-    return render(request,'customers/customer.html',{'customer':c,'upper_parents':upper_parents,'admin_parents':admin_parents,'childs':childs,'admin_childs':admin_childs})
-
-
-def customer_contracts(request,customer_id):
-    c=CustomersOrgs.objects.get(id=customer_id)
-    spz=c.own_spz
-    cust_contr=ContrCustomer.objects.filter(regnum=spz)
-    contr = [i.parent_uid for i in cust_contr]
-    print contr
-    return render(request,'contr/contr.html',{'contr':contr_list})
+#def customer_contracts(request,customer_id):
+#    c=CustomersOrgs.objects.get(id=customer_id)
+#    spz=c.own_spz
+#    cust_contr=ContrCustomer.objects.filter(regnum=spz)
+#    contr = [i.parent_uid for i in cust_contr]
+#    print contr
+#    return render(request,'contr/contr.html',{'contr':contr_list})
 
 def customers_bybudget(request,budget_id):
     c=CustomersOrgs.objects.filter(buget_code=budget_id).all()

@@ -1,11 +1,14 @@
+from contr.models import ContrCustomer
 from django.db import models
 
+
 # Create your models here.
+
+
 
 class CustomersOrgs(models.Model):
     url = models.TextField(blank=True)
     own_spz = models.BigIntegerField(null=True, blank=True)
-
     polnomochie_org = models.TextField(blank=True)
     full_name = models.TextField(blank=True)
     short_name = models.TextField(blank=True)
@@ -55,4 +58,18 @@ class CustomersOrgs(models.Model):
         return [(field.name, field.value_to_string(self)) for field in CustomersOrgs._meta.fields]
     class Meta:
         db_table = 'customers_orgs'
+
+class CustomerContrAggr(models.Model):
+    regnum=models.BigIntegerField()
+    inn=models.BigIntegerField()
+    kpp=models.BigIntegerField()
+    sum=models.DecimalField()                            
+    count=models.BigIntegerField()
+    def fullname(self):
+        c=ContrCustomer.objects.filter(regnum=self.regnum)[0]
+	return c.fullname    
+
+    class Meta:
+        db_table = 'customers_contr_aggr'
+
 

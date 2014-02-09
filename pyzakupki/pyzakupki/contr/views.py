@@ -8,7 +8,7 @@ from customers.models import CustomersOrgs
 from django.db import connection
 from contr.models import *
 from django_tables2.utils import A 
-from django_tables2   import RequestConfig
+from django_tables2 import RequestConfig
 from utils import *
 from forms import *
 from tables import *
@@ -32,13 +32,11 @@ def getChildObjects(object):
     result={}
     obj_list=[]
     links = [rel.get_accessor_name() for rel in object._meta.get_all_related_objects()]
-#    print "Object:",object,"Links:",links  
     for link in links:
-        #print "link:",link
         objects = getattr(object, link).all()
         if len(objects)>0:
             for obj in objects:
-                print link,obj.uid
+                logger.debug(link,obj.uid)
                 getChildObjects(obj)
             
     return result
@@ -50,7 +48,7 @@ def contr(request,contr_id):
     return render(request,'contr/contr.html',{'table':table})
 
 def object(request,obj_type,obj_id):   
-  
+               
     obj_type = model_factory(obj_type)
     obj = obj_type.objects.filter(pk=obj_id)
     main_table=generate_table(obj,obj_type) 
@@ -60,16 +58,16 @@ def object(request,obj_type,obj_id):
     try:    
         parent = obj.get().parent_uid    
         while 1:                       
-            print "Parent:",parent
+            logger.info("Parent:"+str(parent))
             parent.str_name=str(parent).split(" ")[0]
             parents.append(parent)
             obj=parent
             parent = obj.parent_uid
     except AttributeError:
-        print "Not Found attr:%s"
+        logger.debug("Not Found attr:%s")
 
     
-    print "Parents",parents
+    logger.debug("Parents:%s"%(parents))
     
     parents.reverse()
     
@@ -82,7 +80,7 @@ def object(request,obj_type,obj_id):
         result={}
         obj_list=[]
         links = [rel.get_accessor_name() for rel in object._meta.get_all_related_objects()]
-        print "Object:",object,"Links:",links  
+        logger.debug("Object:%sLinks:%s"%(object,links))  
         for link in links:
             objects = getattr(object, link).all()
             if len(objects)>0:
@@ -94,7 +92,7 @@ def object(request,obj_type,obj_id):
 
     getChildObjects(top_level)   
        
-    print "Main tree:",main_tree
+    logger.debug("Main tree:"+str(main_tree))
     child_tables=[]
     
     for i in main_tree.keys():
@@ -104,15 +102,10 @@ def object(request,obj_type,obj_id):
         objs_query=mdl.objects.filter(pk__in=ids) 
         tab=generate_table(objs_query,mdl)
         tab.str_name=model_string
-        print dir(tab.data.data)
-        print tab.data.data[0]
         child_tables.append(tab)
     return render(request,'contr/object.html',{'parents':parents,'table':main_table,'child_tables':child_tables})
 
     
-    #print dir(main_table.Meta.model)
-#    return render(request,'contr/object.html',{'table':main_table})
-
 
 def search(request,obj_type,column): 
     form=SearchForm()

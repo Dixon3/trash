@@ -29,6 +29,24 @@
     <script src="/static/bootstrap-3.0.0/assets/js/jquery.js"></script>
     <script src="/static/bootstrap-3.0.0/dist/js/bootstrap.min.js"></script>
     <script src="/static/select2-3.4.5/select2.js"></script>
+    <script>
+    $(function() { 
+      //for bootstrap 3 use 'shown.bs.tab' instead of 'shown' in the next line
+        $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+            //save the latest tab; use cookies if you like 'em better:
+            //console.log($(e.target).attr('href'));
+
+         localStorage.setItem('lastTab', $(e.target).attr('href'));
+         });
+
+         //go to the latest tab, if it exists:
+         var lastTab = localStorage.getItem('lastTab');
+         if (lastTab) {
+              //console.log(lastTab);
+              $(lastTab).addClass('active');
+              }
+         });
+    </script>
     {% block scripts %} {% endblock %}
     </body>
 </html>
